@@ -10,7 +10,7 @@ public:
     LevelFilter();
 
     virtual const char* name() {
-        return "Level";
+        return "Level Filter";
     }
 
     virtual void createUI(QGridLayout* layout);

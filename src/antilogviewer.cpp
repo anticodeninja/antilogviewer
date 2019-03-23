@@ -16,6 +16,7 @@
 #include "table_model.h"
 #include "chain_elements/udp_socket.h"
 #include "chain_elements/level_filter.h"
+#include "chain_elements/keyword_filter.h"
 #include "chain_elements/memory_storage.h"
 #include "chain_elements/terminator.h"
 
@@ -43,6 +44,7 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
     _chain.append(new UdpSocket());
     _chain.append(new MemoryStorage());
     _chain.append(new LevelFilter());
+    _chain.append(new KeywordFilter());
     updateChain(0, 0, _chain.count());
 
     auto filtersScroll = new QScrollArea();
