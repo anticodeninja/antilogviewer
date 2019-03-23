@@ -15,6 +15,7 @@ class UdpSocket : public ChainElement
 {
 public:
     UdpSocket();
+    virtual ~UdpSocket();
 
     virtual const char* name() {
         return "Udp Socket";

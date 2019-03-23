@@ -41,11 +41,9 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
     _filtersLayout->setMargin(0);
     _filtersLayout->setSpacing(0);
 
-    _chain.append(new UdpSocket());
-    _chain.append(new MemoryStorage());
-    _chain.append(new LevelFilter());
-    _chain.append(new KeywordFilter());
-    updateChain(0, 0, _chain.count());
+    addChainElement(new UdpSocket());
+    addChainElement(new MemoryStorage());
+    addChainElement(new LevelFilter());
 
     auto filtersScroll = new QScrollArea();
     filtersScroll->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -94,8 +92,14 @@ AntiLogViewer::~AntiLogViewer()
 
 }
 
-QWidget* AntiLogViewer::createToolSet(ChainElement *element)
+void AntiLogViewer::addChainElement(ChainElement *element)
 {
+    element->setNext(_terminator);
+
+    if (!_chain.isEmpty())
+        _chain.last()->setNext(element);
+    _chain.append(element);
+
     auto frame = new QFrame();
     frame->setFrameShape(QFrame::StyledPanel);
 
@@ -105,9 +109,9 @@ QWidget* AntiLogViewer::createToolSet(ChainElement *element)
     auto ctrName = new QLabel(element->name());
 
     auto configMenu = new QMenu();
-    configMenu->addAction("Up");
-    configMenu->addAction("Down");
-    configMenu->addAction("Remove");
+    configMenu->addAction("Up", [this, element] { moveChainElement(element, true); });
+    configMenu->addAction("Down", [this, element] { moveChainElement(element, false); });
+    configMenu->addAction("Remove", [this, element] { removeChainElement(element); });
 
     auto ctrConfig = new QPushButton("config");
     ctrConfig->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
@@ -117,45 +121,53 @@ QWidget* AntiLogViewer::createToolSet(ChainElement *element)
     layout->addWidget(ctrName, 0, 0, Qt::AlignLeft);
     layout->addWidget(ctrConfig, 0, layout->columnCount() - 1, Qt::AlignRight);
 
-    return frame;
+    _filtersLayout->addWidget(frame);
 }
 
-void AntiLogViewer::updateChain(int start, int remove, int add)
+void AntiLogViewer::moveChainElement(ChainElement *element, bool up)
 {
-    for (auto i = remove; i >= 0; --i)
-        _filtersLayout->removeItem(_filtersLayout->itemAt(start + i));
+    auto index = _chain.indexOf(element);
+    if (up ? index == 0 : index == _chain.count() - 1)
+        return;
 
-    for (auto i = 0; i < add; ++i)
-        _filtersLayout->insertWidget(start + i, createToolSet(_chain[start + i]));
+    auto first = up ? index - 1 : index;
+    auto second = up ? index: index + 1;
 
-    for (auto i = 0; i < _chain.count() - 1; ++i)
-        _chain[i]->setNext(_chain[i + 1]);
-    _chain[_chain.count() - 1]->setNext(_terminator);
+    if (first > 0)
+        _chain[first - 1]->setNext(_chain[second]);
+    _chain[first]->setNext(_chain[second]->getNext());
+    _chain[second]->setNext(_chain[first]);
+
+    _filtersLayout->insertWidget(first, _filtersLayout->itemAt(second)->widget());
+    std::swap(_chain[first], _chain[second]);
+}
+
+void AntiLogViewer::removeChainElement(ChainElement *element)
+{
+    auto index = _chain.indexOf(element);
+    delete _filtersLayout->itemAt(index)->widget();
+
+    if (index > 0)
+        _chain[index - 1]->setNext(element->getNext());
+
+    _chain.removeAt(index);
+    delete element;
 }
 
 void AntiLogViewer::configureProfileButton()
 {
     auto sourceMenu = new QMenu("Source");
-    sourceMenu->addAction("UDP Source", [this](){
-        _chain.append(new UdpSocket());
-        updateChain(_chain.count() - 1, 0, 1);
-    });
+    sourceMenu->addAction("UDP Source", [this] { addChainElement(new UdpSocket()); });
 
     auto filterMenu = new QMenu("Filter");
-    filterMenu->addAction("Level", [this](){
-        _chain.append(new LevelFilter());
-        updateChain(_chain.count() - 1, 0, 1);
-    });
+    filterMenu->addAction("Level", [this] { addChainElement(new LevelFilter()); });
     filterMenu->addAction("Logger");
-    filterMenu->addAction("Keyword");
+    filterMenu->addAction("Keyword", [this] { addChainElement(new KeywordFilter()); });
 
     auto addMenu = new QMenu("Add");
     addMenu->addMenu(sourceMenu);
     addMenu->addMenu(filterMenu);
-    addMenu->addAction("Memory Storage", [this](){
-        _chain.append(new MemoryStorage());
-        updateChain(_chain.count() - 1, 0, 1);
-    });
+    addMenu->addAction("Memory Storage", [this] { addChainElement(new MemoryStorage()); });
 
     auto profileMenu = new QMenu();
     // TODO Add profiles from configuration

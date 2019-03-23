@@ -13,7 +13,12 @@ class ChainElement
 public:
     ChainElement(): _next(nullptr)
     {
-    };
+    }
+
+    virtual ~ChainElement()
+    {
+        _next = nullptr;
+    }
 
     virtual const char* name() = 0;
 
@@ -23,9 +28,13 @@ public:
         _next = element;
     }
 
+    virtual ChainElement* getNext(){
+        return _next;
+    }
+
     virtual void accept(std::shared_ptr<LogItem> item) {
         if (_next) _next->accept(item);
-    };
+    }
 
 private:
     ChainElement* _next;

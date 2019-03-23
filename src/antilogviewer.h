@@ -13,6 +13,7 @@ class QPushButton;
 class QComboBox;
 class QBoxLayout;
 class QGridLayout;
+class QFrame;
 
 class AntiLogViewer : public QMainWindow
 {
@@ -23,8 +24,9 @@ public:
     ~AntiLogViewer();
 
 private:
-    QWidget* createToolSet(ChainElement *element);
-    void updateChain(int start, int remove, int add);
+    void addChainElement(ChainElement *element);
+    void moveChainElement(ChainElement *element, bool up);
+    void removeChainElement(ChainElement *element);
     void configureProfileButton();
 
     TableModel* _logModel;

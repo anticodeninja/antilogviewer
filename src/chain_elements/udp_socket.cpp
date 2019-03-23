@@ -51,6 +51,11 @@ UdpSocket::UdpSocket()
     });
 }
 
+UdpSocket::~UdpSocket()
+{
+    delete _socket;
+}
+
 void UdpSocket::createUI(QGridLayout* layout) {
     auto ctrListenPort = new QSpinBox();
     ctrListenPort->setMinimum(0x0000);
