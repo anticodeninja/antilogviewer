@@ -31,7 +31,8 @@ SOURCES += \
     chain_elements/memory_storage.cpp \
     chain_elements/terminator.cpp \
     table_model.cpp \
-    chain_elements/keyword_filter.cpp
+    chain_elements/keyword_filter.cpp \
+    chain_elements/source_filter.cpp
 
 HEADERS += \
     antilogviewer.h \
@@ -42,7 +43,8 @@ HEADERS += \
     log_item.h \
     chain_elements/terminator.h \
     table_model.h \
-    chain_elements/keyword_filter.h
+    chain_elements/keyword_filter.h \
+    chain_elements/source_filter.h
 
 RESOURCES +=
 

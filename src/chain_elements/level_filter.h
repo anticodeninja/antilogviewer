@@ -1,5 +1,5 @@
-#ifndef CAPTURE_LEVEL_FILTER_H
-#define CAPTURE_LEVEL_FILTER_H
+#ifndef LEVEL_FILTER_H
+#define LEVEL_FILTER_H
 
 #include "log_item.h"
 #include "chain_elements/chain_element.h"
@@ -21,4 +21,4 @@ private:
     LogLevel _level;
 };
 
-#endif // CAPTURE_LEVEL_FILTER_H
+#endif // LEVEL_FILTER_H

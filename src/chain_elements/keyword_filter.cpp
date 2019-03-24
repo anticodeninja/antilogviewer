@@ -13,16 +13,20 @@ void KeywordFilter::createUI(QGridLayout *layout)
     auto ctrInput = new QLineEdit();
 
     auto ctrAdd = new QPushButton("+");
+    ctrAdd->setFixedWidth(20);
+
     ctrAdd->connect(ctrAdd, &QPushButton::clicked, [this, layout, ctrInput, ctrAdd] {
-        auto text = ctrInput->text().trimmed();
+        auto keyword = ctrInput->text().trimmed();
         ctrInput->clear();
 
-        if (text.count() == 0 || _keywords.contains(text))
+        if (keyword.count() == 0 || _keywords.contains(keyword))
             return;
-        _keywords.append(text);
+        _keywords.append(keyword);
 
-        auto ctrLabel = new QLabel(text);
+        auto ctrLabel = new QLabel(keyword);
+
         auto ctrRemove = new QPushButton("-");
+        ctrRemove->setFixedWidth(20);
         ctrRemove->connect(ctrRemove, &QPushButton::clicked, [this, layout, ctrRemove] {
             int row, column, rowSpan, colSpan;
             layout->getItemPosition(layout->indexOf(ctrRemove), &row, &column, &rowSpan, &colSpan);
@@ -51,7 +55,7 @@ void KeywordFilter::createUI(QGridLayout *layout)
 
 void KeywordFilter::accept(std::shared_ptr<LogItem> item)
 {
-    if (item->Type != LogItemType::Log || _keywords.count() == 0) {
+    if (item->Type != LogItemType::Log || _keywords.empty()) {
         ChainElement::accept(item);
     } else {
         foreach (auto keyword, _keywords) {

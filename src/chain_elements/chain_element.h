@@ -1,5 +1,5 @@
-#ifndef CHAINELEMENT_H
-#define CHAINELEMENT_H
+#ifndef CHAIN_ELEMENT_H
+#define CHAIN_ELEMENT_H
 
 #include <memory>
 
@@ -40,4 +40,4 @@ private:
     ChainElement* _next;
 };
 
-#endif // CHAINELEMENT_H
+#endif // CHAIN_ELEMENT_H

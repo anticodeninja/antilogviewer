@@ -18,6 +18,7 @@
 #include "chain_elements/level_filter.h"
 #include "chain_elements/keyword_filter.h"
 #include "chain_elements/memory_storage.h"
+#include "chain_elements/source_filter.h"
 #include "chain_elements/terminator.h"
 
 AntiLogViewer::AntiLogViewer(QWidget *parent)
@@ -44,6 +45,8 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
     addChainElement(new UdpSocket());
     addChainElement(new MemoryStorage());
     addChainElement(new LevelFilter());
+    addChainElement(new KeywordFilter());
+    addChainElement(new SourceFilter());
 
     auto filtersScroll = new QScrollArea();
     filtersScroll->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -106,20 +109,16 @@ void AntiLogViewer::addChainElement(ChainElement *element)
     auto layout = new QGridLayout(frame);
     element->createUI(layout);
 
-    auto ctrName = new QLabel(element->name());
-
     auto configMenu = new QMenu();
     configMenu->addAction("Up", [this, element] { moveChainElement(element, true); });
     configMenu->addAction("Down", [this, element] { moveChainElement(element, false); });
     configMenu->addAction("Remove", [this, element] { removeChainElement(element); });
 
-    auto ctrConfig = new QPushButton("config");
-    ctrConfig->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+    auto ctrConfig = new QPushButton(element->name());
     ctrConfig->setMenu(configMenu);
     ctrConfig->setFlat(true);
 
-    layout->addWidget(ctrName, 0, 0, Qt::AlignLeft);
-    layout->addWidget(ctrConfig, 0, layout->columnCount() - 1, Qt::AlignRight);
+    layout->addWidget(ctrConfig, 0, 0, 1, layout->columnCount());
 
     _filtersLayout->addWidget(frame);
 }
@@ -156,20 +155,21 @@ void AntiLogViewer::removeChainElement(ChainElement *element)
 
 void AntiLogViewer::configureProfileButton()
 {
-    auto sourceMenu = new QMenu("Source");
+    auto profileMenu = new QMenu();
+
+    auto addMenu = profileMenu->addMenu("Add");
+
+    auto sourceMenu = addMenu->addMenu("Source");
     sourceMenu->addAction("UDP Source", [this] { addChainElement(new UdpSocket()); });
 
-    auto filterMenu = new QMenu("Filter");
+    auto filterMenu = addMenu->addMenu("Filter");
     filterMenu->addAction("Level", [this] { addChainElement(new LevelFilter()); });
-    filterMenu->addAction("Logger");
+    filterMenu->addAction("Source", [this] { addChainElement(new SourceFilter()); });
     filterMenu->addAction("Keyword", [this] { addChainElement(new KeywordFilter()); });
 
-    auto addMenu = new QMenu("Add");
-    addMenu->addMenu(sourceMenu);
-    addMenu->addMenu(filterMenu);
-    addMenu->addAction("Memory Storage", [this] { addChainElement(new MemoryStorage()); });
+    auto systemMenu = addMenu->addMenu("System");
+    systemMenu->addAction("Memory Storage", [this] { addChainElement(new MemoryStorage()); });
 
-    auto profileMenu = new QMenu();
     // TODO Add profiles from configuration
     profileMenu->addAction("Default");
     profileMenu->addSeparator();
