@@ -1,0 +1,12 @@
+variables:
+  author: "Artem Yamshanov, me [at] anticode.ninja"
+  years: "2019"
+global:
+  rstrip: True
+  header: |
+      {mpl2_header}
+      Copyright {years} {author}
+files:
+  "*.py": {}
+  "*.h": {}
+  "*.cpp": {}
