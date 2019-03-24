@@ -23,6 +23,7 @@ public:
     }
 
     virtual void createUI(QGridLayout *layout) {
+        Q_UNUSED(layout);
     }
 
     virtual void accept(std::shared_ptr<LogItem> item);

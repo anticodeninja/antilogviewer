@@ -33,11 +33,13 @@ TableModel::TableModel(QObject *parent)
 
 int TableModel::rowCount(const QModelIndex &parent) const
 {
+    Q_UNUSED(parent);
     return _rows.count();
 }
 
 int TableModel::columnCount(const QModelIndex &parent) const
 {
+    Q_UNUSED(parent);
     return 3;
 }
 

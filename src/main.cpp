@@ -33,12 +33,14 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 
 int main(int argc, char *argv[])
 {
+    qInstallMessageHandler(myMessageOutput);
+
     // TODO Unhardcode
     QPalette palette(QColor(7, 54, 66));
     palette.setColor(QPalette::Base, QColor(7, 54, 66));
 
-    qInstallMessageHandler(myMessageOutput);
     QApplication::setPalette(palette);
+    QApplication::setStyle("fusion");
     QApplication app(argc, argv);
 
     AntiLogViewer mainWindow;

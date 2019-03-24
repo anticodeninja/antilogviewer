@@ -28,10 +28,12 @@
 
 AntiLogViewer::AntiLogViewer(QWidget *parent)
     : QMainWindow(parent)
-    , _autoScroll(true)
     , _logModel(new TableModel())
     , _terminator(new Terminator(_logModel))
+    , _autoScroll(true)
 {
+    setWindowState(Qt::WindowMaximized);
+
     auto logTable = new QTableView();
     logTable->setCornerButtonEnabled(false);
     logTable->setWordWrap(false);
