@@ -29,10 +29,10 @@ SOURCES += \
     chain_elements/udp_socket.cpp \
     chain_elements/level_filter.cpp \
     chain_elements/memory_storage.cpp \
-    chain_elements/terminator.cpp \
     table_model.cpp \
     chain_elements/keyword_filter.cpp \
-    chain_elements/source_filter.cpp
+    chain_elements/source_filter.cpp \
+    chain_elements/table_view.cpp
 
 HEADERS += \
     antilogviewer.h \
@@ -41,10 +41,10 @@ HEADERS += \
     chain_elements/level_filter.h \
     chain_elements/memory_storage.h \
     log_item.h \
-    chain_elements/terminator.h \
     table_model.h \
     chain_elements/keyword_filter.h \
-    chain_elements/source_filter.h
+    chain_elements/source_filter.h \
+    chain_elements/table_view.h
 
 RESOURCES +=
 

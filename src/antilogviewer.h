@@ -11,7 +11,7 @@
 
 class ChainElement;
 class TableModel;
-class Terminator;
+class TableView;
 
 class QLineEdit;
 class QPushButton;
@@ -35,7 +35,6 @@ private:
     void configureProfileButton();
 
     TableModel* _logModel;
-    Terminator* _terminator;
     QList<ChainElement*> _chain;
     QBoxLayout* _filtersLayout;
     QPushButton* _profileButton;

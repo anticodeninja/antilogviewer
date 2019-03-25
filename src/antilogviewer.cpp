@@ -24,12 +24,11 @@
 #include "chain_elements/keyword_filter.h"
 #include "chain_elements/memory_storage.h"
 #include "chain_elements/source_filter.h"
-#include "chain_elements/terminator.h"
+#include "chain_elements/table_view.h"
 
 AntiLogViewer::AntiLogViewer(QWidget *parent)
     : QMainWindow(parent)
     , _logModel(new TableModel())
-    , _terminator(new Terminator(_logModel))
     , _autoScroll(true)
 {
     setWindowState(Qt::WindowMaximized);
@@ -54,6 +53,7 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
     addChainElement(new LevelFilter());
     addChainElement(new KeywordFilter());
     addChainElement(new SourceFilter());
+    addChainElement(new TableView(_logModel));
 
     auto filtersScroll = new QScrollArea();
     filtersScroll->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -104,8 +104,6 @@ AntiLogViewer::~AntiLogViewer()
 
 void AntiLogViewer::addChainElement(ChainElement *element)
 {
-    element->setNext(_terminator);
-
     if (!_chain.isEmpty())
         _chain.last()->setNext(element);
     _chain.append(element);
@@ -176,6 +174,12 @@ void AntiLogViewer::configureProfileButton()
 
     auto systemMenu = addMenu->addMenu("System");
     systemMenu->addAction("Memory Storage", [this] { addChainElement(new MemoryStorage()); });
+
+    auto outputMenu = addMenu->addMenu("Output");
+    outputMenu->addAction("Table View", [this] {
+        if (!_logModel->linked())
+            addChainElement(new TableView(_logModel));
+    });
 
     // TODO Add profiles from configuration
     profileMenu->addAction("Default");

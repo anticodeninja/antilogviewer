@@ -10,21 +10,18 @@
 
 class TableModel;
 
-class Terminator : public ChainElement
+class TableView : public ChainElement
 {
 public:
-    Terminator(TableModel* tableModel)
-        : _tableModel(tableModel)
-    {
-    }
+    TableView(TableModel* tableModel);
+
+    virtual ~TableView();
 
     virtual const char *name() {
-        return "Terminator";
+        return "Table View";
     }
 
-    virtual void createUI(QGridLayout *layout) {
-        Q_UNUSED(layout);
-    }
+    virtual void createUI(QGridLayout *layout);
 
     virtual void accept(std::shared_ptr<LogItem> item);
 

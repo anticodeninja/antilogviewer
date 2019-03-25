@@ -28,7 +28,10 @@ TableModel::TableModel(QObject *parent)
         QColor(7, 54, 66),
         QColor(7, 54, 66),
     })
+    , _linked(false)
+    , _clear(false)
 {
+    startTimer(250);
 }
 
 int TableModel::rowCount(const QModelIndex &parent) const
@@ -48,18 +51,18 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
         case 0:
-            return _rows[index.row()].Timestamp;
+            return QDateTime::fromMSecsSinceEpoch(_rows[index.row()]->Timestamp).toString("hh:mm:ss.zzz");
         case 1:
-            return _rows[index.row()].Source;
+            return _rows[index.row()]->Source;
         case 2:
-            return _rows[index.row()].Message;
+            return _rows[index.row()]->Message;
         default:
             return QVariant();
         }
     } else if (role == Qt::BackgroundColorRole) {
-        return _backColors[(int)_rows[index.row()].Level];
+        return _backColors[(int)_rows[index.row()]->Level];
     } else if (role == Qt::TextColorRole) {
-        return _textColors[(int)_rows[index.row()].Level];
+        return _textColors[(int)_rows[index.row()]->Level];
     }
 
     return QVariant();
@@ -87,22 +90,31 @@ QVariant TableModel::headerData(int section, Qt::Orientation orientation, int ro
     return QVariant();
 }
 
-void TableModel::add(const LogItem &item)
+void TableModel::add(std::shared_ptr<LogItem> item)
 {
-    if (item.Type == LogItemType::Log) {
-        beginInsertRows(QModelIndex(), _rows.count(), _rows.count());
-
-        LogViewItem logEntry;
-        logEntry.Level = item.Level;
-        logEntry.Source = item.Source;
-        logEntry.Message = item.Message;
-        logEntry.Timestamp = QDateTime::fromMSecsSinceEpoch(item.Timestamp).toString("hh:mm:ss.zzz");
-        _rows.append(logEntry);
-
-        endInsertRows();
+    if (item->Type == LogItemType::Log) {
+        _queue.append(item);
     } else {
+        _queue.clear();
+        _clear = true;
+    }
+}
+
+void TableModel::timerEvent(QTimerEvent *event)
+{
+    Q_UNUSED(event);
+
+    if (_clear) {
         beginRemoveRows(QModelIndex(), 0, _rows.count() - 1);
         _rows.clear();
+        _clear = false;
         endRemoveRows();
+    }
+
+    if (!_queue.empty()) {
+        beginInsertRows(QModelIndex(), _rows.count(), _rows.count() + _queue.count() - 1);
+        _rows.append(_queue);
+        _queue.clear();
+        endInsertRows();
     }
 }

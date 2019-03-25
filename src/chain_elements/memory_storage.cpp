@@ -36,7 +36,12 @@ void MemoryStorage::createUI(QGridLayout *layout)
 }
 
 void MemoryStorage::accept(std::shared_ptr<LogItem> item) {
-    _rows.append(item);
+    if (item->Type == LogItemType::Log) {
+        _rows.append(item);
+    } else {
+        _rows.clear();
+    }
+
     ChainElement::accept(item);
 }
 
