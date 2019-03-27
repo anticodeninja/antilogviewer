@@ -20,6 +20,7 @@
 
 #include "table_model.h"
 #include "chain_elements/udp_socket.h"
+#include "chain_elements/text_input.h"
 #include "chain_elements/level_filter.h"
 #include "chain_elements/keyword_filter.h"
 #include "chain_elements/memory_storage.h"
@@ -166,6 +167,7 @@ void AntiLogViewer::configureProfileButton()
 
     auto sourceMenu = addMenu->addMenu("Source");
     sourceMenu->addAction("UDP Source", [this] { addChainElement(new UdpSocket()); });
+    sourceMenu->addAction("Text Input", [this] { addChainElement(new TextInput()); });
 
     auto filterMenu = addMenu->addMenu("Filter");
     filterMenu->addAction("Level", [this] { addChainElement(new LevelFilter()); });
