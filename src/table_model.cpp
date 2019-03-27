@@ -8,6 +8,8 @@
 #include <iostream>
 #include <QDateTime>
 
+#include "constants.h"
+
 TableModel::TableModel(QObject *parent)
     : QAbstractTableModel(parent)
     , _textColors({
@@ -56,8 +58,6 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
             return _rows[index.row()]->Source;
         case 2:
             return _rows[index.row()]->Message;
-        default:
-            return QVariant();
         }
     } else if (role == Qt::BackgroundColorRole) {
         return _backColors[(int)_rows[index.row()]->Level];

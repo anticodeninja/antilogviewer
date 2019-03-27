@@ -17,7 +17,9 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QMenu>
+#include <QDesktopWidget>
 
+#include "table.h"
 #include "table_model.h"
 #include "chain_elements/udp_socket.h"
 #include "chain_elements/text_input.h"
@@ -32,15 +34,17 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
     , _logModel(new TableModel())
     , _autoScroll(true)
 {
+    setWindowIcon(QIcon(":/logo.ico"));
+    resize(QDesktopWidget().availableGeometry(this).size());
     setWindowState(Qt::WindowMaximized);
 
-    auto logTable = new QTableView();
+    auto logTable = new Table();
     logTable->setCornerButtonEnabled(false);
     logTable->setWordWrap(false);
     logTable->setSelectionMode(QAbstractItemView::SingleSelection);
     logTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     logTable->setModel(_logModel);
-    logTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+    logTable->horizontalHeader()->setStretchLastSection(true);
     logTable->verticalHeader()->setDefaultSectionSize(logTable->verticalHeader()->minimumSectionSize());
 
     auto filters = new QWidget();
@@ -70,7 +74,6 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
     ctrAutoScroll->setChecked(_autoScroll);
 
     auto auxPanel = new QWidget();
-    auxPanel->setMaximumWidth(300);
     auto auxLayout = new QGridLayout(auxPanel);
     auxLayout->addWidget(filtersScroll, 0, 0, 1, 2);
     auxLayout->addWidget(ctrAutoScroll, 1, 0);
@@ -79,6 +82,8 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
     auto mainSplitter = new QSplitter();
     mainSplitter->addWidget(logTable);
     mainSplitter->addWidget(auxPanel);
+    mainSplitter->setStretchFactor(0, 8);
+    mainSplitter->setStretchFactor(0, 2);
     setCentralWidget(mainSplitter);
 
     connect(_logModel, &QAbstractTableModel::rowsInserted, [this, logTable]{

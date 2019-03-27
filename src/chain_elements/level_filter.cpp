@@ -9,7 +9,7 @@
 #include <QComboBox>
 
 LevelFilter::LevelFilter()
-    : _level(LogLevel::WARN)
+    : _level(LogLevel::TRACE)
 {
 }
 

@@ -13,7 +13,6 @@
 #include "chain_elements/chain_element.h"
 
 class QGridLayout;
-class QLineEdit;
 class QUdpSocket;
 
 class UdpSocket : public ChainElement

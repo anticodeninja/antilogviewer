@@ -12,6 +12,8 @@
 #include <QFileInfo>
 #include <QDateTime>
 
+#include "constants.h"
+
 TextInput::TextInput()
     : _levels({
         { "TRACE", LogLevel::TRACE },

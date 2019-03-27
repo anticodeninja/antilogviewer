@@ -34,7 +34,8 @@ SOURCES += \
     chain_elements/keyword_filter.cpp \
     chain_elements/source_filter.cpp \
     chain_elements/table_view.cpp \
-    chain_elements/text_input.cpp
+    chain_elements/text_input.cpp \
+    table.cpp
 
 HEADERS += \
     antilogviewer.h \
@@ -47,7 +48,9 @@ HEADERS += \
     chain_elements/keyword_filter.h \
     chain_elements/source_filter.h \
     chain_elements/table_view.h \
-    chain_elements/text_input.h
+    chain_elements/text_input.h \
+    constants.h \
+    table.h
 
 RESOURCES += \
     resources.qrc

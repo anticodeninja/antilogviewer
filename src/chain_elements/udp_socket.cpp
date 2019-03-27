@@ -14,6 +14,8 @@
 #include <QSpinBox>
 #include <QPushButton>
 
+#include "constants.h"
+
 UdpSocket::UdpSocket()
     : _listenPort(7071)
     , _levels({
@@ -43,7 +45,7 @@ UdpSocket::UdpSocket()
                     logItem->Timestamp = xml.attributes().value("timestamp").toDouble() * 1000.0;
                     logItem->Level = _levels[xml.attributes().value("level").toString()];
                 } else if (xml.name() == "message") {
-                    logItem->Message = xml.readElementText();
+                    logItem->Message = xml.readElementText().replace('\n', NEWLINE_CHAR);
                 }
             }
 
