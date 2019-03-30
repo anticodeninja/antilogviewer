@@ -42,9 +42,12 @@ bool Table::eventFilter(QObject *watched, QEvent *event)
                     _popupLabel->setText(index.data(Qt::DisplayRole).toString().replace(NEWLINE_CHAR, '\n'));
                     _popupLabel->setPalette(palette);
                     _popupLabel->setFixedWidth(rect.width());
-
-                    _popup->move(viewport()->mapToGlobal(QTableView::visualRect(index).bottomLeft()));
                     _popup->adjustSize();
+
+                    auto position = QTableView::visualRect(index).bottom() + _popup->height() < viewport()->height()
+                            ? QTableView::visualRect(index).bottomLeft()
+                            : QTableView::visualRect(index).topLeft() - QPoint(0, _popup->height());
+                    _popup->move(viewport()->mapToGlobal(position));
                     _popup->show();
                 } else {
                     _popup->hide();
