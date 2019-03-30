@@ -29,7 +29,7 @@ class LogItem
 public:
     LogItemType Type;
     LogLevel Level;
-    double Timestamp;
+    qint64 Timestamp;
     QString Source;
     QString Message;
 };

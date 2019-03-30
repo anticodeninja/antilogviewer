@@ -42,7 +42,7 @@ UdpSocket::UdpSocket()
             while (xml.readNextStartElement()) {
                 if (xml.name() == "event") {
                     logItem->Source = xml.attributes().value("logger").toString();
-                    logItem->Timestamp = xml.attributes().value("timestamp").toDouble() * 1000.0;
+                    logItem->Timestamp = xml.attributes().value("timestamp").toLongLong();
                     logItem->Level = _levels[xml.attributes().value("level").toString()];
                 } else if (xml.name() == "message") {
                     logItem->Message = xml.readElementText().replace('\n', NEWLINE_CHAR);

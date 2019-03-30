@@ -60,9 +60,9 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
             return _rows[index.row()]->Message;
         }
     } else if (role == Qt::BackgroundColorRole) {
-        return _backColors[(int)_rows[index.row()]->Level];
+        return _backColors[static_cast<int>(_rows[index.row()]->Level)];
     } else if (role == Qt::TextColorRole) {
-        return _textColors[(int)_rows[index.row()]->Level];
+        return _textColors[static_cast<int>(_rows[index.row()]->Level)];
     }
 
     return QVariant();
@@ -75,13 +75,10 @@ QVariant TableModel::headerData(int section, Qt::Orientation orientation, int ro
         switch (section) {
         case 0:
             return QString("Timestamp");
-            break;
         case 1:
             return QString("Source");
-            break;
         case 2:
             return QString("Message");
-            break;
         default:
             return QVariant();
         }
