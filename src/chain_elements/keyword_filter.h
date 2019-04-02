@@ -25,6 +25,11 @@ public:
     virtual void accept(std::shared_ptr<LogItem> item);
 
 private:
+    void add(QString keyword);
+    void remove(int index);
+
+    QGridLayout* _layout;
+    bool _straightforward;
     QList<QString> _keywords;
 };
 

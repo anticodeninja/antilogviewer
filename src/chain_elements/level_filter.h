@@ -23,6 +23,7 @@ public:
     virtual void accept(std::shared_ptr<LogItem> item);
 
 private:
+    bool _straightforward;
     LogLevel _level;
 };
 

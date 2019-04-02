@@ -5,27 +5,43 @@
 
 #include "level_filter.h"
 
+#include <QCheckBox>
 #include <QGridLayout>
 #include <QComboBox>
 
 LevelFilter::LevelFilter()
-    : _level(LogLevel::TRACE)
+    : _straightforward(true)
+    , _level(LogLevel::TRACE)
 {
 }
 
 void LevelFilter::createUI(QGridLayout* layout)
 {
+    auto ctrStraightforward = new QCheckBox("Straightforward");
+    ctrStraightforward->setChecked(_straightforward);
     auto ctrLevel = new QComboBox();
     ctrLevel->addItems(QStringList({"Trace", "Debug","Info", "Warn", "Error", "Fatal"}));
     ctrLevel->setCurrentIndex(static_cast<int>(_level));
+
+    layout->addWidget(ctrStraightforward, 1, 0, 1, 2);
+    layout->addWidget(ctrLevel, 2, 0, 1, 2);
+
+    ctrStraightforward->connect(ctrStraightforward, &QCheckBox::toggled, [this](bool value) {
+        _straightforward = value;
+    });
+
     ctrLevel->connect(ctrLevel, QOverload<int>::of(&QComboBox::currentIndexChanged), [this] (int index) {
         _level = static_cast<LogLevel>(index);
     });
-    layout->addWidget(ctrLevel, 1, 0, 1, 2);
 }
 
 void LevelFilter::accept(std::shared_ptr<LogItem> item)
 {
-    if (item->Type != LogItemType::Log || item->Level >= _level)
+    if (item->Type == LogItemType::Log) {
+        if (_straightforward ? item->Level >= _level : _level >= item->Level) {
+            ChainElement::accept(item);
+        }
+    } else if (item->Type == LogItemType::Clear) {
         ChainElement::accept(item);
+    }
 }

@@ -28,9 +28,14 @@ public:
     virtual void accept(std::shared_ptr<LogItem> item);
 
 private:
-    void addSource(QString source);
+    void addNewSource(QString source);
 
+    void add(QString source);
+    void remove(int index);
+
+    QGridLayout* _layout;
     QMenu* _menu;
+    bool _straightforward;
     QSet<QString> _allSources;
     QList<QString> _sources;
 };

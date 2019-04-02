@@ -102,10 +102,12 @@ void TableModel::timerEvent(QTimerEvent *event)
     Q_UNUSED(event);
 
     if (_clear) {
-        beginRemoveRows(QModelIndex(), 0, _rows.count() - 1);
-        _rows.clear();
         _clear = false;
-        endRemoveRows();
+        if (!_rows.empty()) {
+            beginRemoveRows(QModelIndex(), 0, _rows.count() - 1);
+            _rows.clear();
+            endRemoveRows();
+        }
     }
 
     if (!_queue.empty()) {
