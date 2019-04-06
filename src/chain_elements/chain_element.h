@@ -12,30 +12,36 @@
 
 class LogItem;
 class QGridLayout;
+class QWidget;
+
+enum class ChainElementType {
+    Source,
+    Filter,
+    Sink,
+};
 
 class ChainElement
 {
 public:
-    ChainElement(): _next(nullptr)
+    ChainElement()
+        : _next(nullptr)
+        , _widget(nullptr)
     {
     }
 
-    virtual ~ChainElement()
-    {
-        _next = nullptr;
-    }
+    virtual ~ChainElement();
 
-    virtual const char* name() = 0;
+    virtual const char* name() const = 0;
+
+    virtual ChainElementType type() const = 0;
 
     virtual void createUI(QGridLayout* layout) = 0;
 
-    virtual void setNext(ChainElement* element){
-        _next = element;
-    }
+    void setNext(ChainElement* element) { _next = element; }
+    ChainElement* next() const { return _next;}
 
-    virtual ChainElement* getNext(){
-        return _next;
-    }
+    void setWidget(QWidget* widget) { _widget = widget; }
+    QWidget* widget() const { return _widget;}
 
     virtual void accept(std::shared_ptr<LogItem> item) {
         if (_next) _next->accept(item);
@@ -43,6 +49,7 @@ public:
 
 private:
     ChainElement* _next;
+    QWidget* _widget;
 };
 
 #endif // CHAIN_ELEMENT_H

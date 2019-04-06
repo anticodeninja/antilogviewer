@@ -110,58 +110,74 @@ AntiLogViewer::~AntiLogViewer()
 
 void AntiLogViewer::addChainElement(ChainElement *element)
 {
-    if (!_chain.isEmpty())
-        _chain.last()->setNext(element);
-    _chain.append(element);
+    auto index = 0;
+    for (; index < _chain.length(); ++index) {
+        if (_chain[index]->type() > element->type()) {
+            break;
+        }
+    }
 
-    auto frame = new QFrame();
-    frame->setFrameShape(QFrame::StyledPanel);
-
-    auto layout = new QGridLayout(frame);
-    element->createUI(layout);
-
-    auto configMenu = new QMenu();
-    configMenu->addAction("Up", [this, element] { moveChainElement(element, true); });
-    configMenu->addAction("Down", [this, element] { moveChainElement(element, false); });
-    configMenu->addAction("Remove", [this, element] { removeChainElement(element); });
-
-    auto ctrConfig = new QPushButton(element->name());
-    ctrConfig->setMenu(configMenu);
-    ctrConfig->setFlat(true);
-
-    layout->addWidget(ctrConfig, 0, 0, 1, layout->columnCount());
-
-    _filtersLayout->addWidget(frame);
+    insertChainElement(element, index);
 }
 
-void AntiLogViewer::moveChainElement(ChainElement *element, bool up)
+void AntiLogViewer::insertChainElement(ChainElement *element, int position)
+{
+    _chain.insert(position, element);
+
+    if (position < _chain.length() - 1) {
+        element->setNext(_chain[position + 1]);
+    }
+    if (position > 0) {
+        _chain[position - 1]->setNext(element);
+    }
+
+    if (element->widget() == nullptr) {
+        auto frame = new QFrame();
+        frame->setFrameShape(QFrame::StyledPanel);
+
+        auto layout = new QGridLayout(frame);
+        element->createUI(layout);
+
+        auto configMenu = new QMenu();
+        configMenu->addAction("Up", [this, element] { moveChainElement(element, -1); });
+        configMenu->addAction("Down", [this, element] { moveChainElement(element, 1); });
+        configMenu->addAction("Remove", [this, element] { removeChainElement(element, true); });
+
+        auto ctrConfig = new QPushButton(element->name());
+        ctrConfig->setMenu(configMenu);
+        ctrConfig->setFlat(true);
+
+        layout->addWidget(ctrConfig, 0, 0, 1, layout->columnCount());
+        element->setWidget(frame);
+    }
+
+    _filtersLayout->insertWidget(position, element->widget());
+}
+
+void AntiLogViewer::moveChainElement(ChainElement *element, int delta)
 {
     auto index = _chain.indexOf(element);
-    if (up ? index == 0 : index == _chain.count() - 1)
+    auto newIndex = qBound(0, index + delta, _chain.count() - 1);
+    if (index == newIndex)
         return;
 
-    auto first = up ? index - 1 : index;
-    auto second = up ? index: index + 1;
-
-    if (first > 0)
-        _chain[first - 1]->setNext(_chain[second]);
-    _chain[first]->setNext(_chain[second]->getNext());
-    _chain[second]->setNext(_chain[first]);
-
-    _filtersLayout->insertWidget(first, _filtersLayout->itemAt(second)->widget());
-    std::swap(_chain[first], _chain[second]);
+    removeChainElement(element, false);
+    insertChainElement(element, newIndex);
 }
 
-void AntiLogViewer::removeChainElement(ChainElement *element)
+void AntiLogViewer::removeChainElement(ChainElement *element, bool free)
 {
     auto index = _chain.indexOf(element);
-    delete _filtersLayout->itemAt(index)->widget();
 
     if (index > 0)
-        _chain[index - 1]->setNext(element->getNext());
+        _chain[index - 1]->setNext(element->next());
 
+    element->setNext(nullptr);
     _chain.removeAt(index);
-    delete element;
+
+    if (free) {
+        delete element;
+    }
 }
 
 void AntiLogViewer::configureProfileButton()
@@ -190,9 +206,8 @@ void AntiLogViewer::configureProfileButton()
 
     // TODO Add profiles from configuration
     profileMenu->addAction("Default");
+    profileMenu->addAction("Save As");
     profileMenu->addSeparator();
     profileMenu->addMenu(addMenu);
-    profileMenu->addAction("Save As");
-    profileMenu->addAction("Delete");
     _profileButton->setMenu(profileMenu);
 }

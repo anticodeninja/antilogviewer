@@ -19,9 +19,8 @@ class MemoryStorage : public ChainElement
 public:
     MemoryStorage();
 
-    virtual const char* name() {
-        return "Memory Storage";
-    }
+    virtual const char* name() const { return "Memory Storage"; }
+    virtual ChainElementType type() const { return ChainElementType::Filter; }
 
     virtual void createUI(QGridLayout* layout);
 

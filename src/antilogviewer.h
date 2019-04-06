@@ -30,8 +30,9 @@ public:
 
 private:
     void addChainElement(ChainElement *element);
-    void moveChainElement(ChainElement *element, bool up);
-    void removeChainElement(ChainElement *element);
+    void insertChainElement(ChainElement *element, int position);
+    void moveChainElement(ChainElement *element, int delta);
+    void removeChainElement(ChainElement *element, bool free);
     void configureProfileButton();
 
     TableModel* _logModel;

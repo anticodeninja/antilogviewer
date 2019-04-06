@@ -27,6 +27,7 @@ win32:RC_ICONS += logo.ico
 SOURCES += \
     main.cpp \
     antilogviewer.cpp \
+    chain_elements/chain_element.cpp \
     chain_elements/udp_socket.cpp \
     chain_elements/level_filter.cpp \
     chain_elements/memory_storage.cpp \

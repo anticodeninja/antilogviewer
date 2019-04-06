@@ -16,9 +16,8 @@ class KeywordFilter : public ChainElement
 public:
     KeywordFilter();
 
-    virtual const char* name() {
-        return "Keyword Filter";
-    }
+    virtual const char* name() const { return "Keyword Filter"; }
+    virtual ChainElementType type() const { return ChainElementType::Filter; }
 
     virtual void createUI(QGridLayout* layout);
 

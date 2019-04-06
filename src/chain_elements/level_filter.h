@@ -14,9 +14,8 @@ class LevelFilter : public ChainElement
 public:
     LevelFilter();
 
-    virtual const char* name() {
-        return "Level Filter";
-    }
+    virtual const char* name() const { return "Level Filter"; }
+    virtual ChainElementType type() const { return ChainElementType::Filter; }
 
     virtual void createUI(QGridLayout* layout);
 

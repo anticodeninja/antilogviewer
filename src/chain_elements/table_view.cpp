@@ -34,4 +34,5 @@ void TableView::createUI(QGridLayout *layout) {
 void TableView::accept(std::shared_ptr<LogItem> item)
 {
     _tableModel->add(item);
+    ChainElement::accept(item);
 }

@@ -19,9 +19,8 @@ class SourceFilter : public ChainElement
 public:
     SourceFilter();
 
-    virtual const char* name() {
-        return "Source Filter";
-    }
+    virtual const char* name() const { return "Source Filter"; }
+    virtual ChainElementType type() const { return ChainElementType::Filter; }
 
     virtual void createUI(QGridLayout* layout);
 
