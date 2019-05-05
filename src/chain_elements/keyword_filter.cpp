@@ -5,6 +5,9 @@
 
 #include "keyword_filter.h"
 
+#include <QJsonObject>
+#include <QJsonArray>
+
 #include <QGridLayout>
 #include <QCheckBox>
 #include <QLineEdit>
@@ -34,14 +37,47 @@ void KeywordFilter::createUI(QGridLayout* layout)
     layout->addWidget(ctrInput, DYNAMIC_PRE, 0);
     layout->addWidget(ctrAdd, DYNAMIC_PRE, 1);
 
+    foreach (auto keyword, _keywords)
+        add(keyword);
+
     ctrStraightforward->connect(ctrStraightforward, &QCheckBox::toggled, [this](bool value) {
         _straightforward = value;
     });
 
     ctrAdd->connect(ctrAdd, &QPushButton::clicked, [this, ctrInput] {
-        add(ctrInput->text());
+        auto keyword = ctrInput->text();
+
+        if (keyword.count() != 0 && !_keywords.contains(keyword)) {
+            _keywords.append(keyword);
+            add(keyword);
+        }
+
         ctrInput->clear();
     });
+}
+
+void KeywordFilter::load(const QJsonObject &data)
+{
+    if (data["straightforward"].isBool())
+        _straightforward = data["straightforward"].toBool();
+
+    if (data["keywords"].isArray()) {
+        auto keywords = data["keywords"].toArray();
+        foreach(auto keyword, keywords) {
+            if (keyword.isString())
+                _keywords.append(keyword.toString());
+        }
+    }
+}
+
+void KeywordFilter::save(QJsonObject &data) const
+{
+    data["straightforward"] = _straightforward;
+
+    QJsonArray keywords;
+    foreach(auto keyword, _keywords)
+        keywords.append(keyword);
+    data["keywords"] = keywords;
 }
 
 void KeywordFilter::accept(std::shared_ptr<LogItem> item)
@@ -68,11 +104,6 @@ void KeywordFilter::accept(std::shared_ptr<LogItem> item)
 
 void KeywordFilter::add(QString keyword)
 {
-    keyword = keyword.trimmed();
-    if (keyword.count() == 0 || _keywords.contains(keyword))
-        return;
-    _keywords.append(keyword);
-
     auto ctrLabel = new QLabel(keyword);
     auto ctrRemove = new QPushButton("-");
     ctrRemove->setFixedWidth(20);

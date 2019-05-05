@@ -21,6 +21,8 @@ public:
     virtual ChainElementType type() const { return ChainElementType::Sink; }
 
     virtual void createUI(QGridLayout *layout);
+    virtual void load(const QJsonObject& data) { Q_UNUSED(data); }
+    virtual void save(QJsonObject& data) const { Q_UNUSED(data); }
 
     virtual void accept(std::shared_ptr<LogItem> item);
 

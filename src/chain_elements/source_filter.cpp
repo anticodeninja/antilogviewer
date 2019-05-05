@@ -5,6 +5,8 @@
 
 #include "source_filter.h"
 
+#include <QJsonObject>
+#include <QJsonArray>
 #include <QGridLayout>
 #include <QCheckBox>
 #include <QMenu>
@@ -34,13 +36,44 @@ void SourceFilter::createUI(QGridLayout *layout)
     layout->addWidget(ctrStraightforward, 1, 0, 1, 2);
     layout->addWidget(ctrAdd, DYNAMIC_PRE, 0, 1, 2);
 
+    foreach (auto source, _sources)
+        add(source);
+
     ctrStraightforward->connect(ctrStraightforward, &QCheckBox::toggled, [this](bool value) {
         _straightforward = value;
     });
 
     _menu->connect(_menu, &QMenu::triggered, [this](QAction* action){
-        add(action->data().toString());
+        auto source = action->data().toString();
+        if (!_sources.contains(source)) {
+            _sources.append(source);
+            add(source);
+        }
     });
+}
+
+void SourceFilter::load(const QJsonObject &data)
+{
+    if (data["straightforward"].isBool())
+        _straightforward = data["straightforward"].toBool();
+
+    if (data["sources"].isArray()) {
+        auto sources = data["sources"].toArray();
+        foreach(auto source, sources) {
+            if (source.isString())
+                _sources.append(source.toString());
+        }
+    }
+}
+
+void SourceFilter::save(QJsonObject &data) const
+{
+    data["straightforward"] = _straightforward;
+
+    QJsonArray sources;
+    foreach(auto source, _sources)
+        sources.append(source);
+    data["sources"] = sources;
 }
 
 void SourceFilter::accept(std::shared_ptr<LogItem> item)
@@ -77,10 +110,6 @@ void SourceFilter::accept(std::shared_ptr<LogItem> item)
 
 void SourceFilter::add(QString source)
 {
-    if (_sources.contains(source))
-        return;
-    _sources.append(source);
-
     auto ctrLabel = new QLabel(source);
     auto ctrRemove = new QPushButton("-");
     ctrRemove->setFixedWidth(20);

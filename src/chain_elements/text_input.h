@@ -23,8 +23,11 @@ public:
     virtual ChainElementType type() const { return ChainElementType::Source; }
 
     virtual void createUI(QGridLayout* layout);
+    virtual void load(const QJsonObject& data);
+    virtual void save(QJsonObject& data) const;
 
 private:
+    QString _path;
     QHash<QString, LogLevel> _levels;
 };
 

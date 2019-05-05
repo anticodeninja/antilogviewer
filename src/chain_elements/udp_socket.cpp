@@ -8,6 +8,7 @@
 #include <QUdpSocket>
 #include <QNetworkDatagram>
 #include <QXmlStreamReader>
+#include <QJsonObject>
 
 #include <QGridLayout>
 #include <QLabel>
@@ -70,13 +71,31 @@ void UdpSocket::createUI(QGridLayout* layout) {
     ctrListenPort->setValue(_listenPort);
 
     auto ctrApply = new QPushButton("Apply");
+    layout->addWidget(new QLabel("Listen Port:"), 1, 0);
+    layout->addWidget(ctrListenPort, 1, 1);
+    layout->addWidget(ctrApply, 2, 0, 1, 2);
+
     ctrApply->connect(ctrApply, &QPushButton::clicked, [this, ctrListenPort] {
-        _listenPort = ctrListenPort->value();
         _socket->abort();
         _socket->bind(QHostAddress::LocalHost, _listenPort);
     });
 
-    layout->addWidget(new QLabel("Listen Port:"), 1, 0);
-    layout->addWidget(ctrListenPort, 1, 1);
-    layout->addWidget(ctrApply, 2, 0, 1, 2);
+    ctrListenPort->connect(ctrListenPort, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [this] (int value) {
+        _listenPort = value;
+    });
+}
+
+void UdpSocket::load(const QJsonObject &data)
+{
+    if (data["port"].isDouble())
+    {
+        _listenPort = static_cast<quint16>(data["port"].toInt());
+        _socket->abort();
+        _socket->bind(QHostAddress::LocalHost, _listenPort);
+    }
+}
+
+void UdpSocket::save(QJsonObject &data) const
+{
+    data["port"] = _listenPort;
 }

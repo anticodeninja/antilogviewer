@@ -6,6 +6,7 @@
 #ifndef ANTILOGVIEWER_H
 #define ANTILOGVIEWER_H
 
+#include <QJsonObject>
 #include <QMainWindow>
 #include <QList>
 
@@ -33,12 +34,22 @@ private:
     void insertChainElement(ChainElement *element, int position);
     void moveChainElement(ChainElement *element, int delta);
     void removeChainElement(ChainElement *element, bool free);
+
+    void loadConfiguration();
+    void saveConfiguration(bool silent);
+
+    bool loadProfile(QString name);
+    void saveProfile(QString name);
+    void generateDefaultProfile();
+    void deleteProfile();
+
     void configureProfileButton();
 
     TableModel* _logModel;
     QList<ChainElement*> _chain;
     QBoxLayout* _filtersLayout;
     QPushButton* _profileButton;
+    QMap<QString, QJsonArray> _profiles;
 
     bool _autoScroll;
 };

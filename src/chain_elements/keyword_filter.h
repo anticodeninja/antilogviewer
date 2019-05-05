@@ -20,6 +20,8 @@ public:
     virtual ChainElementType type() const { return ChainElementType::Filter; }
 
     virtual void createUI(QGridLayout* layout);
+    virtual void load(const QJsonObject& data);
+    virtual void save(QJsonObject& data) const;
 
     virtual void accept(std::shared_ptr<LogItem> item);
 

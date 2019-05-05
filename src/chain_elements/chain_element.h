@@ -36,6 +36,8 @@ public:
     virtual ChainElementType type() const = 0;
 
     virtual void createUI(QGridLayout* layout) = 0;
+    virtual void load(const QJsonObject& data) = 0;
+    virtual void save(QJsonObject& data) const = 0;
 
     void setNext(ChainElement* element) { _next = element; }
     ChainElement* next() const { return _next;}

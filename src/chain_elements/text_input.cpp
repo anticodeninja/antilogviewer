@@ -5,6 +5,7 @@
 
 #include "text_input.h"
 
+#include <QJsonObject>
 #include <QGridLayout>
 #include <QLineEdit>
 #include <QPushButton>
@@ -24,26 +25,30 @@ TextInput::TextInput()
         { "FATAL", LogLevel::FATAL },
     })
 {
+    _path = QDir::home().filePath("log.txt");
 }
 
 void TextInput::createUI(QGridLayout* layout) {
     auto ctrPath = new QLineEdit();
-    ctrPath->setText(QDir::home().filePath("log.txt"));
+    ctrPath->setText(_path);
 
     auto ctrOpen = new QPushButton("Open");
     ctrOpen->connect(ctrOpen, &QPushButton::clicked, [this, ctrPath] {
         auto result = QFileDialog::getOpenFileName(ctrPath, QString(), ctrPath->text(), "Log Files (*.*)");
         if (result != QString())
+        {
+            _path = result;
             ctrPath->setText(result);
+        }
     });
 
     auto ctrRead = new QPushButton("Read");
-    ctrRead->connect(ctrRead, &QPushButton::clicked, [this, ctrPath] {
+    ctrRead->connect(ctrRead, &QPushButton::clicked, [this] {
         auto logItem = std::make_shared<LogItem>();
         logItem->Type = LogItemType::Clear;
         ChainElement::accept(logItem);
 
-        QFile file(ctrPath->text());
+        QFile file(_path);
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
             return;
 
@@ -82,4 +87,15 @@ void TextInput::createUI(QGridLayout* layout) {
     layout->addWidget(ctrPath, 1, 0);
     layout->addWidget(ctrOpen, 1, 1);
     layout->addWidget(ctrRead, 2, 0, 1, 2);
+}
+
+void TextInput::load(const QJsonObject &data)
+{
+    if (data["path"].isString())
+        _path = data["path"].toString();
+}
+
+void TextInput::save(QJsonObject &data) const
+{
+    data["path"] = _path;
 }

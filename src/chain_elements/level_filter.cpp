@@ -5,6 +5,7 @@
 
 #include "level_filter.h"
 
+#include <QJsonObject>
 #include <QCheckBox>
 #include <QGridLayout>
 #include <QComboBox>
@@ -33,6 +34,20 @@ void LevelFilter::createUI(QGridLayout* layout)
     ctrLevel->connect(ctrLevel, QOverload<int>::of(&QComboBox::currentIndexChanged), [this] (int index) {
         _level = static_cast<LogLevel>(index);
     });
+}
+
+void LevelFilter::load(const QJsonObject &data)
+{
+    if (data["straightforward"].isBool())
+        _straightforward = data["straightforward"].toBool();
+    if (data["level"].isDouble())
+        _level = static_cast<LogLevel>(data["level"].toInt());
+}
+
+void LevelFilter::save(QJsonObject &data) const
+{
+    data["straightforward"] = _straightforward;
+    data["level"] = static_cast<int>(_level);
 }
 
 void LevelFilter::accept(std::shared_ptr<LogItem> item)
