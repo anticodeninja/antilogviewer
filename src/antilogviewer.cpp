@@ -26,7 +26,6 @@
 #include <QMessageBox>
 
 #include "constants.h"
-#include "table.h"
 #include "table_model.h"
 #include "chain_elements/udp_socket.h"
 #include "chain_elements/text_input.h"
@@ -45,7 +44,7 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
     resize(QDesktopWidget().availableGeometry(this).size());
     setWindowState(Qt::WindowMaximized);
 
-    auto logTable = new Table();
+    auto logTable = new QTableView();
     logTable->setCornerButtonEnabled(false);
     logTable->setWordWrap(false);
     logTable->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -53,6 +52,11 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
     logTable->setModel(_logModel);
     logTable->horizontalHeader()->setStretchLastSection(true);
     logTable->verticalHeader()->setDefaultSectionSize(logTable->verticalHeader()->minimumSectionSize());
+
+    auto details = new QLabel();
+    details->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    details->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
+    details->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
     auto filters = new QWidget();
     filters->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Maximum);
@@ -79,19 +83,36 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
     auxLayout->addWidget(ctrAutoScroll, 1, 0);
     auxLayout->addWidget(_profileButton, 1, 1);
 
+    auto leftSplitter = new QSplitter(Qt::Vertical);
+    leftSplitter->addWidget(logTable);
+    leftSplitter->addWidget(details);
+    leftSplitter->setStretchFactor(0, 4);
+    leftSplitter->setStretchFactor(1, 4);
+
     auto mainSplitter = new QSplitter();
-    mainSplitter->addWidget(logTable);
+    mainSplitter->addWidget(leftSplitter);
     mainSplitter->addWidget(auxPanel);
     mainSplitter->setStretchFactor(0, 8);
-    mainSplitter->setStretchFactor(0, 2);
+    mainSplitter->setStretchFactor(1, 1);
     setCentralWidget(mainSplitter);
 
-    connect(_logModel, &QAbstractTableModel::rowsInserted, [this, logTable]{
+    connect(_logModel, &QAbstractTableModel::rowsInserted, [this, logTable] {
         if (_autoScroll)
             logTable->scrollToBottom();
     });
 
-    connect(logTable->verticalScrollBar(), &QScrollBar::valueChanged, [logTable, ctrAutoScroll](int value){
+    connect(logTable->selectionModel(), &QItemSelectionModel::currentRowChanged,
+            [this, details](const QModelIndex &current, const QModelIndex &previous) {
+        Q_UNUSED(previous);
+        auto palette = details->palette();
+        auto messageIndex = current.siblingAtColumn(2);
+        palette.setColor(QPalette::Window, messageIndex.data(Qt::BackgroundColorRole).value<QColor>());
+        palette.setColor(QPalette::WindowText, messageIndex.data(Qt::TextColorRole).value<QColor>());
+        // It can look strange, but is tradeoff to get good table perfomance
+        details->setText(messageIndex.data(Qt::DisplayRole).toString().replace(NEWLINE_CHAR, '\n'));
+        details->setPalette(palette);
+    });
+    connect(logTable->verticalScrollBar(), &QScrollBar::valueChanged, [logTable, ctrAutoScroll](int value) {
         if (logTable->verticalScrollBar()->maximum() != value)
             ctrAutoScroll->setChecked(false);
     });

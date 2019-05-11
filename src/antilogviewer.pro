@@ -36,7 +36,6 @@ SOURCES += \
     chain_elements/source_filter.cpp \
     chain_elements/table_view.cpp \
     chain_elements/text_input.cpp \
-    table.cpp \
     layout_helper.cpp
 
 HEADERS += \
@@ -52,7 +51,6 @@ HEADERS += \
     chain_elements/table_view.h \
     chain_elements/text_input.h \
     constants.h \
-    table.h \
     layout_helper.h
 
 RESOURCES += \
