@@ -144,21 +144,48 @@ void SourceFilter::addNewSource(QString source)
         int end = last ? source.count() : pos;
         auto chunk = source.mid(index, end - index);
 
+        auto max = menu->actions().count() - 1;
         QMenu* inner = nullptr;
+        QAction* before = nullptr;
 
-        foreach (auto child, menu->actions()) {
-            if (child->text() == chunk) {
-                inner = child->menu();
+        // Binary search... and bit of magic
+        auto l = 0;
+        if (l <= max && menu->actions()[l]->text() == "this")
+            l = 1;
+        auto r = max;
+
+        while (l <= r) {
+            auto m = (l + r) / 2;
+            auto node = menu->actions()[m];
+
+            if (node->text() == chunk) {
+                inner = node->menu();
                 break;
             }
+
+            auto f = chunk > node->text();
+            if (l == r) {
+                if (!f && m <= max)
+                    before = menu->actions()[m];
+                else if (m < max)
+                    before = menu->actions()[m + 1];
+                break;
+            }
+
+            if (f)
+                l = m + 1;
+            else
+                r = m - 1;
         }
 
         if (inner != nullptr) {
             menu = inner;
         } else {
-            menu = menu->addMenu(chunk);
-            auto action = menu->addAction("this");
+            auto newMenu = new QMenu(chunk, _menu);
+            auto action = newMenu->addAction("this");
             action->setData(source.left(end));
+            menu->insertMenu(before, newMenu);
+            menu = newMenu;
         }
 
         if (last)
