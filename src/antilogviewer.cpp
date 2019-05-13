@@ -57,6 +57,7 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
     details->setFrameStyle(QFrame::Panel | QFrame::Sunken);
     details->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
     details->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+    details->setWordWrap(true);
 
     auto filters = new QWidget();
     filters->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Maximum);
@@ -102,7 +103,7 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
     });
 
     connect(logTable->selectionModel(), &QItemSelectionModel::currentRowChanged,
-            [this, details](const QModelIndex &current, const QModelIndex &previous) {
+            [details](const QModelIndex &current, const QModelIndex &previous) {
         Q_UNUSED(previous);
         auto palette = details->palette();
         auto messageIndex = current.siblingAtColumn(2);
