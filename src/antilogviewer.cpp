@@ -19,6 +19,8 @@
 #include <QTableView>
 #include <QScrollArea>
 #include <QLabel>
+#include <QPlainTextEdit>
+#include <QTextDocumentFragment>
 #include <QPushButton>
 #include <QMenu>
 #include <QDesktopWidget>
@@ -53,11 +55,9 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
     logTable->horizontalHeader()->setStretchLastSection(true);
     logTable->verticalHeader()->setDefaultSectionSize(logTable->verticalHeader()->minimumSectionSize());
 
-    auto details = new QLabel();
+    auto details = new QPlainTextEdit();
     details->setFrameStyle(QFrame::Panel | QFrame::Sunken);
     details->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
-    details->setAlignment(Qt::AlignTop | Qt::AlignLeft);
-    details->setWordWrap(true);
 
     auto filters = new QWidget();
     filters->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Maximum);
@@ -87,8 +87,8 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
     auto leftSplitter = new QSplitter(Qt::Vertical);
     leftSplitter->addWidget(logTable);
     leftSplitter->addWidget(details);
-    leftSplitter->setStretchFactor(0, 4);
-    leftSplitter->setStretchFactor(1, 4);
+    leftSplitter->setStretchFactor(0, 6);
+    leftSplitter->setStretchFactor(1, 1);
 
     auto mainSplitter = new QSplitter();
     mainSplitter->addWidget(leftSplitter);
@@ -108,9 +108,9 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
         auto palette = details->palette();
         auto messageIndex = current.siblingAtColumn(2);
         palette.setColor(QPalette::Window, messageIndex.data(Qt::BackgroundColorRole).value<QColor>());
-        palette.setColor(QPalette::WindowText, messageIndex.data(Qt::TextColorRole).value<QColor>());
+        palette.setColor(QPalette::Text, messageIndex.data(Qt::TextColorRole).value<QColor>());
         // It can look strange, but is tradeoff to get good table perfomance
-        details->setText(messageIndex.data(Qt::DisplayRole).toString().replace(NEWLINE_CHAR, '\n'));
+        details->setPlainText(messageIndex.data(Qt::DisplayRole).toString().replace(NEWLINE_CHAR, '\n'));
         details->setPalette(palette);
     });
     connect(logTable->verticalScrollBar(), &QScrollBar::valueChanged, [logTable, ctrAutoScroll](int value) {
@@ -217,7 +217,6 @@ void AntiLogViewer::loadConfiguration()
     }
 
     // Profiles
-
     if (configuration[PROFILES_SECTION].isObject()) {
         auto profilesSection = configuration[PROFILES_SECTION].toObject();
         for (auto i = profilesSection.constBegin(); i != profilesSection.constEnd(); ++i)
