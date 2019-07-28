@@ -76,8 +76,6 @@ void TextInput::createUI(QGridLayout* layout) {
             } else {
                 logItem->Message += NEWLINE_CHAR + line;
             }
-
-            ChainElement::accept(logItem);
         }
 
         if (logItem != nullptr)
