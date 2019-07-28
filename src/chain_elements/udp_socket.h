@@ -21,7 +21,7 @@ public:
     UdpSocket();
     virtual ~UdpSocket();
 
-    virtual const char* name() const { return "Udp Socket"; }
+    virtual const QString name() const { return "Udp Socket"; }
     virtual ChainElementType type() const { return ChainElementType::Source; }
 
     virtual void createUI(QGridLayout* layout);

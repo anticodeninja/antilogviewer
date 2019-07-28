@@ -12,6 +12,7 @@
 
 class LogItem;
 class QGridLayout;
+class QMenu;
 class QWidget;
 
 enum class ChainElementType {
@@ -31,19 +32,32 @@ public:
 
     virtual ~ChainElement();
 
-    virtual const char* name() const = 0;
+    virtual const QString name() const = 0;
+    const QString fullname() const;
 
     virtual ChainElementType type() const = 0;
 
     virtual void createUI(QGridLayout* layout) = 0;
+    virtual void createMenuOnEntry(QMenu* menu, std::shared_ptr<LogItem> item) {
+        Q_UNUSED(menu);
+        Q_UNUSED(item);
+    }
+    virtual void createMenuOnSelection(QMenu* menu, const QString& selection) {
+        Q_UNUSED(menu);
+        Q_UNUSED(selection);
+    }
+
     virtual void load(const QJsonObject& data) = 0;
     virtual void save(QJsonObject& data) const = 0;
 
     void setNext(ChainElement* element) { _next = element; }
-    ChainElement* next() const { return _next;}
+    ChainElement* next() const { return _next; }
+
+    void setSlotId(int slotId) { _slotId = slotId; }
+    int slotId() const { return _slotId; }
 
     void setWidget(QWidget* widget) { _widget = widget; }
-    QWidget* widget() const { return _widget;}
+    QWidget* widget() const { return _widget; }
 
     virtual void accept(std::shared_ptr<LogItem> item) {
         if (_next) _next->accept(item);
@@ -51,6 +65,7 @@ public:
 
 private:
     ChainElement* _next;
+    int _slotId;
     QWidget* _widget;
 };
 

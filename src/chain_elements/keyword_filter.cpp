@@ -12,6 +12,7 @@
 #include <QCheckBox>
 #include <QLineEdit>
 #include <QLabel>
+#include <QMenu>
 #include <QPushButton>
 
 #include "layout_helper.h"
@@ -38,22 +39,34 @@ void KeywordFilter::createUI(QGridLayout* layout)
     layout->addWidget(ctrAdd, DYNAMIC_PRE, 1);
 
     foreach (auto keyword, _keywords)
-        add(keyword);
+        addUi(keyword);
 
     ctrStraightforward->connect(ctrStraightforward, &QCheckBox::toggled, [this](bool value) {
         _straightforward = value;
     });
 
     ctrAdd->connect(ctrAdd, &QPushButton::clicked, [this, ctrInput] {
-        auto keyword = ctrInput->text();
-
-        if (keyword.count() != 0 && !_keywords.contains(keyword)) {
-            _keywords.append(keyword);
-            add(keyword);
-        }
-
+        addItem(ctrInput->text());
         ctrInput->clear();
     });
+}
+
+void KeywordFilter::createMenuOnSelection(QMenu *menu, const QString &selection)
+{
+    auto index = _keywords.indexOf(selection);
+    if (index == -1) {
+        menu->addAction(
+                    QString("Add to %0").arg(fullname()),
+                    [this, selection](){
+            addItem(selection);
+        });
+    } else {
+        menu->addAction(
+                    QString("Remove from %0").arg(fullname()),
+                    [this, index](){
+            remove(index);
+        });
+    }
 }
 
 void KeywordFilter::load(const QJsonObject &data)
@@ -102,7 +115,15 @@ void KeywordFilter::accept(std::shared_ptr<LogItem> item)
     }
 }
 
-void KeywordFilter::add(QString keyword)
+void KeywordFilter::addItem(const QString &keyword)
+{
+    if (keyword.count() != 0 && !_keywords.contains(keyword)) {
+        _keywords.append(keyword);
+        addUi(keyword);
+    }
+}
+
+void KeywordFilter::addUi(const QString& keyword)
 {
     auto ctrLabel = new QLabel(keyword);
     auto ctrRemove = new QPushButton("-");

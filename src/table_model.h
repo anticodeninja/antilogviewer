@@ -25,6 +25,7 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     void add(std::shared_ptr<LogItem> item);
+    std::shared_ptr<LogItem> get(int index) const;
 
     void setLinked(bool state) { _linked = state; }
     bool linked() const { return _linked; }

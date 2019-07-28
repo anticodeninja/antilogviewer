@@ -19,7 +19,7 @@ class TextInput : public ChainElement
 public:
     TextInput();
 
-    virtual const char* name() const { return "Text Input"; }
+    virtual const QString name() const { return "Text Input"; }
     virtual ChainElementType type() const { return ChainElementType::Source; }
 
     virtual void createUI(QGridLayout* layout);

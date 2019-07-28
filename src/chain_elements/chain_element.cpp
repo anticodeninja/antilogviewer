@@ -11,3 +11,10 @@ ChainElement::~ChainElement() {
     _next = nullptr;
     delete _widget;
 }
+
+const QString ChainElement::fullname() const
+{
+    return _slotId < 2
+            ? name()
+            : QString("%0:%1").arg(name()).arg(_slotId);
+}

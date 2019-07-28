@@ -16,17 +16,20 @@ class KeywordFilter : public ChainElement
 public:
     KeywordFilter();
 
-    virtual const char* name() const { return "Keyword Filter"; }
+    virtual const QString name() const { return "Keyword Filter"; }
     virtual ChainElementType type() const { return ChainElementType::Filter; }
 
     virtual void createUI(QGridLayout* layout);
+    virtual void createMenuOnSelection(QMenu* menu, const QString& selection);
+
     virtual void load(const QJsonObject& data);
     virtual void save(QJsonObject& data) const;
 
     virtual void accept(std::shared_ptr<LogItem> item);
 
 private:
-    void add(QString keyword);
+    void addItem(const QString& keyword);
+    void addUi(const QString& keyword);
     void remove(int index);
 
     QGridLayout* _layout;

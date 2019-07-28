@@ -48,6 +48,7 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
 
     auto logTable = new QTableView();
     logTable->setCornerButtonEnabled(false);
+    logTable->setContextMenuPolicy(Qt::CustomContextMenu);
     logTable->setWordWrap(false);
     logTable->setSelectionMode(QAbstractItemView::SingleSelection);
     logTable->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -58,6 +59,7 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
     auto details = new QPlainTextEdit();
     details->setFrameStyle(QFrame::Panel | QFrame::Sunken);
     details->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
+    details->setContextMenuPolicy(Qt::CustomContextMenu);
 
     auto filters = new QWidget();
     filters->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Maximum);
@@ -113,9 +115,36 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
         details->setPlainText(messageIndex.data(Qt::DisplayRole).toString().replace(NEWLINE_CHAR, '\n'));
         details->setPalette(palette);
     });
+
     connect(logTable->verticalScrollBar(), &QScrollBar::valueChanged, [logTable, ctrAutoScroll](int value) {
         if (logTable->verticalScrollBar()->maximum() != value)
             ctrAutoScroll->setChecked(false);
+    });
+
+    connect(logTable, &QTableView::customContextMenuRequested,
+            [this, logTable](const QPoint &pos) {
+        auto context= new QMenu(this);
+        auto item = _logModel->get(logTable->indexAt(pos).row());
+        for (auto i = 0; i < _chain.size(); ++i) {
+            _chain[i]->createMenuOnEntry(context, item);
+        }
+        context->exec(logTable->viewport()->mapToGlobal(pos));
+    });
+
+    connect(details, &QPlainTextEdit::customContextMenuRequested,
+            [this, details](const QPoint &pos) {
+        auto context= new QMenu(this);
+        auto text = details->textCursor().selectedText();
+        for (auto i = 0; i < _chain.size(); ++i) {
+            _chain[i]->createMenuOnSelection(context, text);
+        }
+        context->addAction("Copy", [details](){
+            details->copy();
+        });
+        context->addAction("Select All", [details](){
+            details->selectAll();
+        });
+        context->exec(details->mapToGlobal(pos));
     });
 
     connect(ctrAutoScroll, &QPushButton::toggled, [this, logTable](bool state) {
@@ -142,6 +171,7 @@ void AntiLogViewer::addChainElement(ChainElement *element)
     }
 
     insertChainElement(element, index);
+    updateChainSlots();
 }
 
 void AntiLogViewer::insertChainElement(ChainElement *element, int position)
@@ -167,7 +197,7 @@ void AntiLogViewer::insertChainElement(ChainElement *element, int position)
         configMenu->addAction("Down", [this, element] { moveChainElement(element, 1); });
         configMenu->addAction("Remove", [this, element] { removeChainElement(element, true); });
 
-        auto ctrConfig = new QPushButton(element->name());
+        auto ctrConfig = new QPushButton(element->fullname());
         ctrConfig->setMenu(configMenu);
         ctrConfig->setFlat(true);
 
@@ -176,6 +206,7 @@ void AntiLogViewer::insertChainElement(ChainElement *element, int position)
     }
 
     _filtersLayout->insertWidget(position, element->widget());
+    updateChainSlots();
 }
 
 void AntiLogViewer::moveChainElement(ChainElement *element, int delta)
@@ -187,6 +218,7 @@ void AntiLogViewer::moveChainElement(ChainElement *element, int delta)
 
     removeChainElement(element, false);
     insertChainElement(element, newIndex);
+    updateChainSlots();
 }
 
 void AntiLogViewer::removeChainElement(ChainElement *element, bool free)
@@ -201,6 +233,22 @@ void AntiLogViewer::removeChainElement(ChainElement *element, bool free)
 
     if (free) {
         delete element;
+        updateChainSlots();
+    }
+}
+
+void AntiLogViewer::updateChainSlots()
+{
+    QMap<QString, int> counters;
+
+    foreach (auto& element, _chain) {
+        auto slotId = counters.value(element->name(), 1);
+        counters[element->name()] = slotId + 1;
+
+        element->setSlotId(slotId);
+        auto layout = static_cast<QGridLayout*>(element->widget()->layout());
+        auto widget = static_cast<QPushButton*>(layout->itemAtPosition(0, 0)->widget());
+        widget->setText(element->fullname());
     }
 }
 
@@ -320,7 +368,7 @@ void AntiLogViewer::saveProfile(QString name)
         return;
 
     QJsonArray chain;
-    foreach (auto element, _chain) {
+    foreach (auto& element, _chain) {
         QJsonObject elementSection;
         elementSection["name"] = element->name();
 
@@ -339,12 +387,13 @@ void AntiLogViewer::saveProfile(QString name)
 
 void AntiLogViewer::generateDefaultProfile()
 {
-    addChainElement(new UdpSocket());
-    addChainElement(new MemoryStorage());
-    addChainElement(new LevelFilter());
-    addChainElement(new KeywordFilter());
-    addChainElement(new SourceFilter());
-    addChainElement(new TableView(_logModel));
+    insertChainElement(new UdpSocket(), 0);
+    insertChainElement(new MemoryStorage(), 1);
+    insertChainElement(new LevelFilter(), 2);
+    insertChainElement(new KeywordFilter(), 3);
+    insertChainElement(new SourceFilter(), 4);
+    insertChainElement(new TableView(_logModel), 5);
+    updateChainSlots();
     saveProfile(DEFAULT_PROFILE);
 }
 

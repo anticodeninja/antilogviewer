@@ -19,19 +19,21 @@ class SourceFilter : public ChainElement
 public:
     SourceFilter();
 
-    virtual const char* name() const { return "Source Filter"; }
+    virtual const QString name() const { return "Source Filter"; }
     virtual ChainElementType type() const { return ChainElementType::Filter; }
 
     virtual void createUI(QGridLayout* layout);
+    virtual void createMenuOnEntry(QMenu* menu, std::shared_ptr<LogItem> item);
+
     virtual void load(const QJsonObject& data);
     virtual void save(QJsonObject& data) const;
 
     virtual void accept(std::shared_ptr<LogItem> item);
 
 private:
-    void addNewSource(QString source);
-
-    void add(QString source);
+    void addItem(QString source);
+    void addItemToAllSources(QString source);
+    void addUi(QString source);
     void remove(int index);
 
     QGridLayout* _layout;

@@ -37,19 +37,33 @@ void SourceFilter::createUI(QGridLayout *layout)
     layout->addWidget(ctrAdd, DYNAMIC_PRE, 0, 1, 2);
 
     foreach (auto source, _sources)
-        add(source);
+        addUi(source);
 
     ctrStraightforward->connect(ctrStraightforward, &QCheckBox::toggled, [this](bool value) {
         _straightforward = value;
     });
 
     _menu->connect(_menu, &QMenu::triggered, [this](QAction* action){
-        auto source = action->data().toString();
-        if (!_sources.contains(source)) {
-            _sources.append(source);
-            add(source);
-        }
+        addItem(action->data().toString());
     });
+}
+
+void SourceFilter::createMenuOnEntry(QMenu *menu, std::shared_ptr<LogItem> item)
+{
+    auto index = _sources.indexOf(item->Source);
+    if (index == -1) {
+        menu->addAction(
+                    QString("Add \"%0\" to %1").arg(item->Source).arg(fullname()),
+                    [this, item](){
+            addItem(item->Source);
+        });
+    } else {
+        menu->addAction(
+                    QString("Remove \"%0\" from %1").arg(item->Source).arg(fullname()),
+                    [this, index](){
+            remove(index);
+        });
+    }
 }
 
 void SourceFilter::load(const QJsonObject &data)
@@ -59,9 +73,9 @@ void SourceFilter::load(const QJsonObject &data)
 
     if (data["sources"].isArray()) {
         auto sources = data["sources"].toArray();
-        foreach(auto source, sources) {
+        foreach (auto source, sources) {
             if (source.isString())
-                _sources.append(source.toString());
+                addItem(source.toString());
         }
     }
 }
@@ -79,7 +93,7 @@ void SourceFilter::save(QJsonObject &data) const
 void SourceFilter::accept(std::shared_ptr<LogItem> item)
 {
     if (item->Type == LogItemType::Log) {
-        addNewSource(item->Source);
+        addItemToAllSources(item->Source);
 
         if (_sources.empty()) {
             ChainElement::accept(item);
@@ -101,36 +115,23 @@ void SourceFilter::accept(std::shared_ptr<LogItem> item)
 
         foreach (auto source, _allSources) {
             _allSources.insert(source);
-            addNewSource(source);
+            addItemToAllSources(source);
         }
 
         ChainElement::accept(item);
     }
 }
 
-void SourceFilter::add(QString source)
+void SourceFilter::addItem(QString source)
 {
-    auto ctrLabel = new QLabel(source);
-    auto ctrRemove = new QPushButton("-");
-    ctrRemove->setFixedWidth(20);
+    if (_sources.contains(source))
+        return;
 
-    auto offset = _sources.count() + DYNAMIC_PRE - 1;
-    insertRow(_layout, offset, _sources.count() + DYNAMIC_PRE + DYNAMIC_POST);
-    _layout->addWidget(ctrLabel, offset, 0);
-    _layout->addWidget(ctrRemove, offset, 1);
-
-    ctrRemove->connect(ctrRemove, &QPushButton::clicked, [this, ctrRemove] {
-        remove(getRow(_layout, ctrRemove) - DYNAMIC_PRE);
-    });
+    _sources.append(source);
+    addUi(source);
 }
 
-void SourceFilter::remove(int index)
-{
-    _sources.removeAt(index);
-    removeRow(_layout, index + DYNAMIC_PRE, _sources.count() + DYNAMIC_PRE + DYNAMIC_POST);
-}
-
-void SourceFilter::addNewSource(QString source)
+void SourceFilter::addItemToAllSources(QString source)
 {
     if (_allSources.contains(source))
         return;
@@ -192,4 +193,26 @@ void SourceFilter::addNewSource(QString source)
             break;
         index = pos + 1;
     }
+}
+
+void SourceFilter::addUi(QString source)
+{
+    auto ctrLabel = new QLabel(source);
+    auto ctrRemove = new QPushButton("-");
+    ctrRemove->setFixedWidth(20);
+
+    auto offset = _sources.count() + DYNAMIC_PRE - 1;
+    insertRow(_layout, offset, _sources.count() + DYNAMIC_PRE + DYNAMIC_POST);
+    _layout->addWidget(ctrLabel, offset, 0);
+    _layout->addWidget(ctrRemove, offset, 1);
+
+    ctrRemove->connect(ctrRemove, &QPushButton::clicked, [this, ctrRemove] {
+        remove(getRow(_layout, ctrRemove) - DYNAMIC_PRE);
+    });
+}
+
+void SourceFilter::remove(int index)
+{
+    _sources.removeAt(index);
+    removeRow(_layout, index + DYNAMIC_PRE, _sources.count() + DYNAMIC_PRE + DYNAMIC_POST);
 }

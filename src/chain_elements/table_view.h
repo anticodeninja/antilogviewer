@@ -17,7 +17,7 @@ public:
 
     virtual ~TableView();
 
-    virtual const char* name() const { return "Table View"; }
+    virtual const QString name() const { return "Table View"; }
     virtual ChainElementType type() const { return ChainElementType::Sink; }
 
     virtual void createUI(QGridLayout *layout);

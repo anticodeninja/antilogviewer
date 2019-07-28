@@ -97,6 +97,11 @@ void TableModel::add(std::shared_ptr<LogItem> item)
     }
 }
 
+std::shared_ptr<LogItem> TableModel::get(int index) const
+{
+    return _rows[index];
+}
+
 void TableModel::timerEvent(QTimerEvent *event)
 {
     Q_UNUSED(event);

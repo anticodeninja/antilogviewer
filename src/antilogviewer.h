@@ -34,6 +34,7 @@ private:
     void insertChainElement(ChainElement *element, int position);
     void moveChainElement(ChainElement *element, int delta);
     void removeChainElement(ChainElement *element, bool free);
+    void updateChainSlots();
 
     void loadConfiguration();
     void saveConfiguration(bool silent);
