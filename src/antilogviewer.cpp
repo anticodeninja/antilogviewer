@@ -123,8 +123,13 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
 
     connect(logTable, &QTableView::customContextMenuRequested,
             [this, logTable](const QPoint &pos) {
+        auto index = logTable->indexAt(pos);
+        if (!index.isValid())
+            return;
+
+        auto item = _logModel->get(index.row());
+
         auto context= new QMenu(this);
-        auto item = _logModel->get(logTable->indexAt(pos).row());
         for (auto i = 0; i < _chain.size(); ++i) {
             _chain[i]->createMenuOnEntry(context, item);
         }

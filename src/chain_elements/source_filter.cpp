@@ -75,7 +75,7 @@ void SourceFilter::load(const QJsonObject &data)
         auto sources = data["sources"].toArray();
         foreach (auto source, sources) {
             if (source.isString())
-                addItem(source.toString());
+                _sources.append(source.toString());
         }
     }
 }
