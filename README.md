@@ -10,7 +10,7 @@ Motivation
 ==========
 
 During our working hours my colleagues and I've spent a bunch of time through challinging a lot of different tools to view logs.
-We have tried a lot of of free and commercial tools and I have not found anything which would fullfill all of our needs.
+We have tried a lot of of free and commercial tools and I have not found anything which would fullfill all our needs.
 This project is an attempt to fix all issues which we faced with other log viewers:
 
 * **High Performance.**
@@ -36,13 +36,23 @@ The Wireshark is a good exception here... but it is not a log viewer, despite th
   You can use it for any commercial aims and implement specific functionality for your purposes.
 
 
-Usage
-=====
+Shut Up and Take My Mon... Respect
+==================================
 
-*Coming soon. Will be written after #4*.
+Get latest version:
+
+- Windows: use binaries from [AppVeyor](https://ci.appveyor.com/project/anticodeninja/antilogviewer/build/artifacts).
+- Linux: you choose the way, compile it from sources.
+- Mac: the same, compile it from sources or pay someone who can do it for you.
+
+
+Documentation
+=============
+
+*Coming soon. Please wait...*
 
 
 Contributing
 ============
 
-Patches/issues/other feedback are welcome.
+Patches/issues/another feedback are welcome.
