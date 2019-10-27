@@ -3,9 +3,10 @@
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 // Copyright 2019 Artem Yamshanov, me [at] anticode.ninja
 
-#ifndef LAYOUT_HELPER_H
-#define LAYOUT_HELPER_H
+#ifndef HELPERS_H
+#define HELPERS_H
 
+class QString;
 class QWidget;
 class QGridLayout;
 
@@ -13,4 +14,7 @@ int getRow(QGridLayout* layout, QWidget* widget);
 void insertRow(QGridLayout* layout, int offset, int rows);
 void removeRow(QGridLayout* layout, int offset, int rows);
 
-#endif // LAYOUT_HELPER_H
+// Helper for splitting source string in chunks, some kind of a "very simple iterator"
+bool splitOnChunks(const QString& source, int& index, QString* part, QString* chunk);
+
+#endif // HELPERS_H

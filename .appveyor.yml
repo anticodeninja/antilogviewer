@@ -16,7 +16,7 @@ before_build:
   - gitversion /l console /output buildserver
 
 build_script:
-  - qmake src\antilogviewer.pro
+  - qmake antilogviewer.pro src
   - mingw32-make
 
 after_build:

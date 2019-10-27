@@ -15,7 +15,7 @@
 #include <QMenu>
 #include <QPushButton>
 
-#include "layout_helper.h"
+#include "helpers.h"
 
 const int DYNAMIC_PRE = 2;
 const int DYNAMIC_POST = 1;

@@ -13,7 +13,7 @@
 #include <QLabel>
 #include <QPushButton>
 
-#include "layout_helper.h"
+#include "helpers.h"
 
 const int DYNAMIC_PRE = 2;
 const int DYNAMIC_POST = 1;
@@ -50,19 +50,23 @@ void SourceFilter::createUI(QGridLayout *layout)
 
 void SourceFilter::createMenuOnEntry(QMenu *menu, std::shared_ptr<LogItem> item)
 {
-    auto index = _sources.indexOf(item->Source);
-    if (index == -1) {
-        menu->addAction(
-                    QString("Add \"%0\" to %1").arg(item->Source).arg(fullname()),
-                    [this, item](){
-            addItem(item->Source);
-        });
-    } else {
-        menu->addAction(
-                    QString("Remove \"%0\" from %1").arg(item->Source).arg(fullname()),
-                    [this, index](){
-            remove(index);
-        });
+    int index = 0;
+    QString part;
+    while (splitOnChunks(item->Source, index, &part, nullptr)) {
+        auto index = _sources.indexOf(part);
+        if (index == -1) {
+            menu->addAction(
+                        QString("Add \"%0\" to %1").arg(part).arg(fullname()),
+                        [this, part](){
+                addItem(part);
+            });
+        } else {
+            menu->addAction(
+                        QString("Remove \"%0\" from %1").arg(part).arg(fullname()),
+                        [this, index](){
+                remove(index);
+            });
+        }
     }
 }
 
@@ -137,14 +141,11 @@ void SourceFilter::addItemToAllSources(QString source)
         return;
     _allSources.insert(source);
 
-    int index = 0;
     QMenu* menu = _menu;
-    for (;;) {
-        int pos = source.indexOf('.', index);
-        int last = pos == -1;
-        int end = last ? source.count() : pos;
-        auto chunk = source.mid(index, end - index);
-
+    int index = 0;
+    QString part;
+    QString chunk;
+    while (splitOnChunks(source, index, &part, &chunk)) {
         auto max = menu->actions().count() - 1;
         QMenu* inner = nullptr;
         QAction* before = nullptr;
@@ -184,14 +185,10 @@ void SourceFilter::addItemToAllSources(QString source)
         } else {
             auto newMenu = new QMenu(chunk, _menu);
             auto action = newMenu->addAction("this");
-            action->setData(source.left(end));
+            action->setData(part);
             menu->insertMenu(before, newMenu);
             menu = newMenu;
         }
-
-        if (last)
-            break;
-        index = pos + 1;
     }
 }
 

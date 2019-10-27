@@ -3,7 +3,7 @@
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 // Copyright 2019 Artem Yamshanov, me [at] anticode.ninja
 
-#include "layout_helper.h"
+#include "helpers.h"
 
 #include <QWidget>
 #include <QGridLayout>
@@ -44,4 +44,21 @@ void removeRow(QGridLayout *layout, int offset, int rows) {
             layout->addWidget(item->widget(), i, j, rowSpan, colSpan);
         }
     }
+}
+
+bool splitOnChunks(const QString& source, int& index, QString* part, QString* chunk) {
+    if (index == -1 || index > source.length())
+        return false;
+
+    int newIndex = source.indexOf('.', index);
+    int end = newIndex != -1 ? newIndex : source.count();
+
+    if (part != nullptr)
+        *part = source.left(end);
+    if (chunk != nullptr)
+        *chunk = source.mid(index, end - index);
+
+    index = newIndex != -1 ? newIndex + 1 : -1;
+
+    return true;
 }

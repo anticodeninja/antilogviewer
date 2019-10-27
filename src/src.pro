@@ -1,12 +1,4 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2019-03-16T20:29:49
-#
-#-------------------------------------------------
-
-QT       += core gui network
-
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT += core widgets gui network
 
 TARGET = antilogviewer
 TEMPLATE = app
@@ -36,7 +28,7 @@ SOURCES += \
     chain_elements/source_filter.cpp \
     chain_elements/table_view.cpp \
     chain_elements/text_input.cpp \
-    layout_helper.cpp
+    helpers.cpp
 
 HEADERS += \
     antilogviewer.h \
@@ -51,7 +43,7 @@ HEADERS += \
     chain_elements/table_view.h \
     chain_elements/text_input.h \
     constants.h \
-    layout_helper.h
+    helpers.h
 
 RESOURCES += \
     resources.qrc
