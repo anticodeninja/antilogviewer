@@ -51,6 +51,34 @@ Documentation
 
 *Coming soon. Please wait...*
 
+NLog
+----
+
+Sample configuration for usage with .NET NLog library:
+
+    <?xml version="1.0" encoding="utf-8" ?>
+    <nlog xmlns="http://www.nlog-project.org/schemas/NLog.xsd"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        autoReload="true">
+
+        <targets async="true">
+            <target name="remoteLog" xsi:type="Chainsaw" address="udp://127.0.0.1:7071"/>
+            <target name="fileLog" xsi:type="File"
+                layout="${longdate}|${level:uppercase=true}|${logger}|${message}"
+                fileName="C:/logs/example/${date:format=yyyy-MM-dd HH-00-00}.txt"
+                keepFileOpen="true"
+                encoding="utf-8" />
+        </targets>
+        <rules>
+            <!-- Usage in realtime mode with Udp Socket Source -->
+            <logger name="*" minlevel="Trace" writeTo="remoteLog" />
+            <!-- Usage in postmortem mode with File Source -->
+            <logger name="*" minlevel="Trace" writeTo="fileLog" />
+        </rules>
+    </nlog>
+
+For more detailed information please read NLog documentation.
+
 
 Contributing
 ============
