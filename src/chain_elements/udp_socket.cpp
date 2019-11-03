@@ -17,6 +17,8 @@
 
 #include "constants.h"
 
+const QHostAddress LISTEN_HOST = QHostAddress::Any;
+
 UdpSocket::UdpSocket()
     : _listenPort(7071)
     , _levels({
@@ -29,7 +31,7 @@ UdpSocket::UdpSocket()
     })
 {
     _socket = new QUdpSocket();
-    _socket->bind(QHostAddress::LocalHost, _listenPort);
+    _socket->bind(LISTEN_HOST, _listenPort);
     _socket->connect(_socket, &QUdpSocket::readyRead, [this]{
         while (_socket->hasPendingDatagrams())
         {
@@ -75,13 +77,13 @@ void UdpSocket::createUI(QGridLayout* layout) {
     layout->addWidget(ctrListenPort, 1, 1);
     layout->addWidget(ctrApply, 2, 0, 1, 2);
 
-    ctrApply->connect(ctrApply, &QPushButton::clicked, [this, ctrListenPort] {
+    ctrApply->connect(ctrApply, &QPushButton::clicked, [this] {
         _socket->abort();
-        _socket->bind(QHostAddress::LocalHost, _listenPort);
+        _socket->bind(LISTEN_HOST, _listenPort);
     });
 
     ctrListenPort->connect(ctrListenPort, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [this] (int value) {
-        _listenPort = value;
+        _listenPort = static_cast<quint16>(value);
     });
 }
 
@@ -91,7 +93,7 @@ void UdpSocket::load(const QJsonObject &data)
     {
         _listenPort = static_cast<quint16>(data["port"].toInt());
         _socket->abort();
-        _socket->bind(QHostAddress::LocalHost, _listenPort);
+        _socket->bind(LISTEN_HOST, _listenPort);
     }
 }
 
