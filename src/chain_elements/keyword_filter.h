@@ -28,12 +28,13 @@ public:
     virtual void accept(std::shared_ptr<LogItem> item);
 
 private:
+    bool check(std::shared_ptr<LogItem> item);
     void addItem(const QString& keyword);
     void addUi(const QString& keyword);
     void remove(int index);
 
     QGridLayout* _layout;
-    bool _straightforward;
+    ChainElementMode _mode;
     QList<QString> _keywords;
 };
 

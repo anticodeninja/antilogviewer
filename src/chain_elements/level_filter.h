@@ -24,7 +24,9 @@ public:
     virtual void accept(std::shared_ptr<LogItem> item);
 
 private:
-    bool _straightforward;
+    bool check(std::shared_ptr<LogItem> item);
+
+    ChainElementMode _mode;
     LogLevel _level;
 };
 

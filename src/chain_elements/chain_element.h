@@ -7,10 +7,11 @@
 #define CHAIN_ELEMENT_H
 
 #include <memory>
-
 #include <QtDebug>
+#include "constants.h"
 
 class LogItem;
+class QComboBox;
 class QGridLayout;
 class QMenu;
 class QWidget;
@@ -39,12 +40,12 @@ public:
 
     virtual void createUI(QGridLayout* layout) = 0;
     virtual void createMenuOnEntry(QMenu* menu, std::shared_ptr<LogItem> item) {
-        Q_UNUSED(menu);
-        Q_UNUSED(item);
+        Q_UNUSED(menu)
+        Q_UNUSED(item)
     }
     virtual void createMenuOnSelection(QMenu* menu, const QString& selection) {
-        Q_UNUSED(menu);
-        Q_UNUSED(selection);
+        Q_UNUSED(menu)
+        Q_UNUSED(selection)
     }
 
     virtual void load(const QJsonObject& data) = 0;
@@ -62,6 +63,9 @@ public:
     virtual void accept(std::shared_ptr<LogItem> item) {
         if (_next) _next->accept(item);
     }
+
+    static void configureModeComboBox(QComboBox *comboBox, ChainElementMode mode, std::function<void(ChainElementMode)> setter);
+    static bool updateElement(bool triggered, ChainElementMode mode, std::shared_ptr<LogItem> item);
 
 private:
     ChainElement* _next;

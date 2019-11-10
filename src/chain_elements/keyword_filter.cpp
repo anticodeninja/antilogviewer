@@ -9,7 +9,7 @@
 #include <QJsonArray>
 
 #include <QGridLayout>
-#include <QCheckBox>
+#include <QComboBox>
 #include <QLineEdit>
 #include <QLabel>
 #include <QMenu>
@@ -21,29 +21,25 @@ const int DYNAMIC_PRE = 2;
 const int DYNAMIC_POST = 1;
 
 KeywordFilter::KeywordFilter()
-    : _straightforward(true)
+    : _mode(ChainElementMode::Pass)
 {
 }
 
 void KeywordFilter::createUI(QGridLayout* layout)
 {
-    auto ctrStraightforward = new QCheckBox("Straightforward");
-    ctrStraightforward->setChecked(_straightforward);
+    auto ctrMode = new QComboBox();
+    configureModeComboBox(ctrMode, _mode, [this](ChainElementMode mode) { _mode = mode; });
     auto ctrInput = new QLineEdit();
     auto ctrAdd = new QPushButton("+");
     ctrAdd->setFixedWidth(20);
 
     _layout = layout;
-    layout->addWidget(ctrStraightforward, 1, 0, 1, 2);
+    layout->addWidget(ctrMode, 1, 0, 1, 2);
     layout->addWidget(ctrInput, DYNAMIC_PRE, 0);
     layout->addWidget(ctrAdd, DYNAMIC_PRE, 1);
 
     foreach (auto keyword, _keywords)
         addUi(keyword);
-
-    ctrStraightforward->connect(ctrStraightforward, &QCheckBox::toggled, [this](bool value) {
-        _straightforward = value;
-    });
 
     ctrAdd->connect(ctrAdd, &QPushButton::clicked, [this, ctrInput] {
         addItem(ctrInput->text());
@@ -71,8 +67,8 @@ void KeywordFilter::createMenuOnSelection(QMenu *menu, const QString &selection)
 
 void KeywordFilter::load(const QJsonObject &data)
 {
-    if (data["straightforward"].isBool())
-        _straightforward = data["straightforward"].toBool();
+    if (data["mode"].isDouble())
+        _mode = static_cast<ChainElementMode>(data["mode"].toInt());
 
     if (data["keywords"].isArray()) {
         auto keywords = data["keywords"].toArray();
@@ -85,7 +81,7 @@ void KeywordFilter::load(const QJsonObject &data)
 
 void KeywordFilter::save(QJsonObject &data) const
 {
-    data["straightforward"] = _straightforward;
+    data["mode"] = static_cast<int>(_mode);
 
     QJsonArray keywords;
     foreach(auto keyword, _keywords)
@@ -95,24 +91,25 @@ void KeywordFilter::save(QJsonObject &data) const
 
 void KeywordFilter::accept(std::shared_ptr<LogItem> item)
 {
-    if (item->Type == LogItemType::Log) {
-        if (_keywords.empty()) {
-            ChainElement::accept(item);
-        } else {
-            foreach (auto keyword, _keywords) {
-                if (item->Message.contains(keyword)) {
-                    if (_straightforward)
-                        ChainElement::accept(item);
-                    return;
-                }
-            }
-
-            if (!_straightforward)
-                ChainElement::accept(item);
-        }
-    } else if (item->Type == LogItemType::Clear) {
+    if ((item->Type == LogItemType::Log && _keywords.empty()) || item->Type == LogItemType::Clear) {
         ChainElement::accept(item);
+        return;
     }
+
+    if (updateElement(check(item), _mode, item)) {
+        ChainElement::accept(item);
+        return;
+    }
+}
+
+bool KeywordFilter::check(std::shared_ptr<LogItem> item)
+{
+    foreach (auto keyword, _keywords) {
+        if (item->Message.contains(keyword)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void KeywordFilter::addItem(const QString &keyword)

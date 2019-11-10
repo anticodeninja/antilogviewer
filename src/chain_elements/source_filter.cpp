@@ -8,7 +8,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QGridLayout>
-#include <QCheckBox>
+#include <QComboBox>
 #include <QMenu>
 #include <QLabel>
 #include <QPushButton>
@@ -19,29 +19,25 @@ const int DYNAMIC_PRE = 2;
 const int DYNAMIC_POST = 1;
 
 SourceFilter::SourceFilter()
-    : _straightforward(true)
+    : _mode(ChainElementMode::Pass)
 {
 }
 
 void SourceFilter::createUI(QGridLayout *layout)
 {
     _menu = new QMenu();
-    auto ctrStraightforward = new QCheckBox("Straightforward");
-    ctrStraightforward->setChecked(_straightforward);
+    auto ctrMode = new QComboBox();
+    configureModeComboBox(ctrMode, _mode, [this](ChainElementMode mode) { _mode = mode; });
     auto ctrAdd = new QPushButton("+");
     ctrAdd->setMenu(_menu);
 
     _layout = layout;
     layout->setColumnStretch(0, 1000);
-    layout->addWidget(ctrStraightforward, 1, 0, 1, 2);
+    layout->addWidget(ctrMode, 1, 0, 1, 2);
     layout->addWidget(ctrAdd, DYNAMIC_PRE, 0, 1, 2);
 
     foreach (auto source, _sources)
         addUi(source);
-
-    ctrStraightforward->connect(ctrStraightforward, &QCheckBox::toggled, [this](bool value) {
-        _straightforward = value;
-    });
 
     _menu->connect(_menu, &QMenu::triggered, [this](QAction* action){
         addItem(action->data().toString());
@@ -72,8 +68,8 @@ void SourceFilter::createMenuOnEntry(QMenu *menu, std::shared_ptr<LogItem> item)
 
 void SourceFilter::load(const QJsonObject &data)
 {
-    if (data["straightforward"].isBool())
-        _straightforward = data["straightforward"].toBool();
+    if (data["mode"].isDouble())
+        _mode = static_cast<ChainElementMode>(data["mode"].toInt());
 
     if (data["sources"].isArray()) {
         auto sources = data["sources"].toArray();
@@ -86,7 +82,7 @@ void SourceFilter::load(const QJsonObject &data)
 
 void SourceFilter::save(QJsonObject &data) const
 {
-    data["straightforward"] = _straightforward;
+    data["mode"] = static_cast<int>(_mode);
 
     QJsonArray sources;
     foreach(auto source, _sources)
@@ -96,24 +92,12 @@ void SourceFilter::save(QJsonObject &data) const
 
 void SourceFilter::accept(std::shared_ptr<LogItem> item)
 {
-    if (item->Type == LogItemType::Log) {
-        addItemToAllSources(item->Source);
+    if (item->Type == LogItemType::Log && _sources.empty()) {
+        ChainElement::accept(item);
+        return;
+    }
 
-        if (_sources.empty()) {
-            ChainElement::accept(item);
-        } else {
-            foreach (auto source, _sources) {
-                if (item->Source.startsWith(source)) {
-                    if (_straightforward)
-                        ChainElement::accept(item);
-                    return;
-                }
-            }
-
-            if (!_straightforward)
-                ChainElement::accept(item);
-        }
-    } else if (item->Type == LogItemType::Clear) {
+    if (item->Type == LogItemType::Clear) {
         _allSources.clear();
         _menu->clear();
 
@@ -123,7 +107,23 @@ void SourceFilter::accept(std::shared_ptr<LogItem> item)
         }
 
         ChainElement::accept(item);
+        return;
     }
+
+    if (updateElement(check(item), _mode, item)) {
+        ChainElement::accept(item);
+        return;
+    }
+}
+
+bool SourceFilter::check(std::shared_ptr<LogItem> item)
+{
+    foreach (auto source, _sources) {
+        if (item->Source.startsWith(source)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void SourceFilter::addItem(QString source)

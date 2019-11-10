@@ -31,6 +31,7 @@ public:
     virtual void accept(std::shared_ptr<LogItem> item);
 
 private:
+    bool check(std::shared_ptr<LogItem> item);
     void addItem(QString source);
     void addItemToAllSources(QString source);
     void addUi(QString source);
@@ -38,7 +39,7 @@ private:
 
     QGridLayout* _layout;
     QMenu* _menu;
-    bool _straightforward;
+    ChainElementMode _mode;
     QSet<QString> _allSources;
     QList<QString> _sources;
 };

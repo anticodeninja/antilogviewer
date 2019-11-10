@@ -21,6 +21,7 @@ void MemoryStorage::createUI(QGridLayout *layout)
     ctrRegen->connect(ctrRegen, &QPushButton::clicked, [this] {
         sendClear();
         foreach (auto item, _rows) {
+            item->Color = static_cast<LogColor>(item->Level);
             ChainElement::accept(item);
         }
     });

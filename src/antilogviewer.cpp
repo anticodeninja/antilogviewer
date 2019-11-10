@@ -109,8 +109,11 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
     connect(logTable->selectionModel(), &QItemSelectionModel::currentRowChanged,
             [details](const QModelIndex &current, const QModelIndex &previous) {
         Q_UNUSED(previous)
-        auto palette = details->palette();
         auto messageIndex = current.siblingAtColumn(2);
+        if (!messageIndex.isValid())
+            return;
+
+        auto palette = details->palette();
         palette.setColor(QPalette::Base, messageIndex.data(Qt::BackgroundColorRole).value<QColor>());
         palette.setColor(QPalette::Text, messageIndex.data(Qt::TextColorRole).value<QColor>());
         // It can look strange, but is tradeoff to get good table perfomance

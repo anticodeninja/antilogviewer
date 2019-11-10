@@ -44,9 +44,9 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
             return _rows[index.row()]->Message;
         }
     } else if (role == Qt::BackgroundColorRole) {
-        return _backColors[static_cast<int>(_rows[index.row()]->Level)];
+        return _backColors[static_cast<int>(_rows[index.row()]->Color)];
     } else if (role == Qt::TextColorRole) {
-        return _textColors[static_cast<int>(_rows[index.row()]->Level)];
+        return _textColors[static_cast<int>(_rows[index.row()]->Color)];
     }
 
     return QVariant();

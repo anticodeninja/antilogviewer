@@ -15,6 +15,16 @@ enum class LogItemType
     Clear,
 };
 
+enum class ChainElementMode
+{
+    Pass,
+    Discard,
+    Mark1,
+    Mark2,
+    Mark3,
+    Mark4,
+};
+
 enum class LogLevel
 {
     Trace,
