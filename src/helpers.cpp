@@ -5,8 +5,10 @@
 
 #include "helpers.h"
 
+#include <QApplication>
 #include <QWidget>
 #include <QGridLayout>
+#include "constants.h"
 
 int getRow(QGridLayout *layout, QWidget *widget) {
     int row, column, rowSpan, colSpan;

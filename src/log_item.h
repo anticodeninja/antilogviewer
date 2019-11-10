@@ -7,28 +7,14 @@
 #define LOG_ITEM_H
 
 #include <QString>
-
-enum class LogItemType
-{
-    Log,
-    Clear,
-};
-
-enum class LogLevel
-{
-    TRACE,
-    DEBUG,
-    INFO,
-    WARN,
-    ERROR,
-    FATAL,
-};
+#include "constants.h"
 
 class LogItem
 {
 public:
     LogItemType Type;
     LogLevel Level;
+    LogColor Color;
     qint64 Timestamp;
     QString Source;
     QString Message;

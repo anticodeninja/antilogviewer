@@ -17,12 +17,12 @@
 
 TextInput::TextInput()
     : _levels({
-        { "TRACE", LogLevel::TRACE },
-        { "DEBUG", LogLevel::DEBUG },
-        { "INFO", LogLevel::INFO },
-        { "WARN", LogLevel::WARN },
-        { "ERROR", LogLevel::ERROR },
-        { "FATAL", LogLevel::FATAL },
+        { "TRACE", LogLevel::Trace },
+        { "DEBUG", LogLevel::Debug },
+        { "INFO", LogLevel::Info },
+        { "WARN", LogLevel::Warn },
+        { "ERROR", LogLevel::Error },
+        { "FATAL", LogLevel::Fatal },
     })
 {
     _path = QDir::home().filePath("log.txt");
@@ -71,6 +71,7 @@ void TextInput::createUI(QGridLayout* layout) {
                 logItem->Type = LogItemType::Log;
                 logItem->Timestamp = datetime.toMSecsSinceEpoch();
                 logItem->Level = _levels[line.mid(sep1 + 1, sep2 - sep1 - 1)];
+                logItem->Color = static_cast<LogColor>(logItem->Level);
                 logItem->Source = line.mid(sep2 + 1, sep3 - sep2 - 1);
                 logItem->Message = line.mid(sep3 + 1);
             } else {

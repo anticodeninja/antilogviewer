@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>antilogviewer colors</title>
+</head>
+<body>
+  <script>
+   const levels = ['Trace', 'Debug', 'Info', 'Warn', 'Error', 'Fatal', 'Custom 1', 'Custom 2', 'Custom 3', 'Custom 4'];
+   const solarized = {
+     'base03':  '#002b36',
+     'base02':  '#073642',
+     'base01':  '#586e75',
+     'base00':  '#657b83',
+     'base0':   '#839496',
+     'base1':   '#93a1a1',
+     'base2':   '#eee8d5',
+     'base3':   '#fdf6e3',
+     'yellow':  '#b58900',
+     'orange':  '#cb4b16',
+     'red':     '#dc322f',
+     'magenta': '#d33682',
+     'violet':  '#6c71c4',
+     'blue':    '#268bd2',
+     'cyan':    '#2aa198',
+     'green':   '#859900',
+   };
+   const colors = [{
+     'name': 'Dark',
+     'base': solarized.base03,
+     'text': [solarized.base01, solarized.base1, solarized.green, solarized.yellow, solarized.red, solarized.base02, solarized.base02, solarized.base02, solarized.base02, solarized.base02],
+     'back': [solarized.base03, solarized.base03, solarized.base03, solarized.base03, solarized.base03, solarized.red, solarized.magenta, solarized.violet, solarized.blue, solarized.cyan]
+   }, {
+     'name': 'Light',
+     'base': solarized.base3,
+     'text': [solarized.base1, solarized.base00, solarized.green, solarized.yellow, solarized.red, solarized.base02, solarized.base02, solarized.base02, solarized.base02, solarized.base02],
+     'back': [solarized.base3, solarized.base3, solarized.base3, solarized.base3, solarized.base3, solarized.red, solarized.magenta, solarized.violet, solarized.blue, solarized.cyan]
+   }];
+
+   function create(parent, tag) {
+     let el = document.createElement(tag);
+     parent.appendChild(el);
+     return el;
+   }
+
+   function update(id) {
+     document.body.bgColor = colors[id].base;
+     for (let i = 0; i < levels.length; ++i) {
+       previewEntries[i].style.color = colors[id].text[i];
+       previewEntries[i].style.background = colors[id].back[i];
+     }
+   }
+
+   let previewTable = create(create(document.body, 'table'), 'tbody'),
+       previewEntries = [];
+   for (let i = 0; i < levels.length; ++i) {
+     let cell = create(create(previewTable, 'tr'), 'td');
+     cell.innerText = levels[i] + ' Message';
+     previewEntries.push(cell);
+   }
+
+   let switchers = create(document.body, 'div');
+   for (let i = 0; i < colors.length; ++i) {
+     let button = create(switchers, 'button');
+     button.innerText = colors[i].name;
+     button.onclick = function() { update(i); };
+   }
+
+   update(0);
+  </script>
+</body>
+</html>
+

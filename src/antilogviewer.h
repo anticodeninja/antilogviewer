@@ -26,7 +26,7 @@ class AntiLogViewer : public QMainWindow
     Q_OBJECT
 
 public:
-    AntiLogViewer(QWidget *parent = 0);
+    AntiLogViewer(QWidget *parent = nullptr);
     ~AntiLogViewer();
 
 private:

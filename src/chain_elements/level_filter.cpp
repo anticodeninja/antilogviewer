@@ -12,7 +12,7 @@
 
 LevelFilter::LevelFilter()
     : _straightforward(true)
-    , _level(LogLevel::TRACE)
+    , _level(LogLevel::Trace)
 {
 }
 

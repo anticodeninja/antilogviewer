@@ -27,6 +27,11 @@ public:
     void add(std::shared_ptr<LogItem> item);
     std::shared_ptr<LogItem> get(int index) const;
 
+    void setTextColor(LogColor level, QColor color);
+    void setBackColor(LogColor level, QColor color);
+    QColor getTextColor(LogColor level) const;
+    QColor getBackColor(LogColor level) const;
+
     void setLinked(bool state) { _linked = state; }
     bool linked() const { return _linked; }
 

@@ -21,14 +21,17 @@ public:
     virtual ChainElementType type() const { return ChainElementType::Sink; }
 
     virtual void createUI(QGridLayout *layout);
-    virtual void load(const QJsonObject& data) { Q_UNUSED(data); }
-    virtual void save(QJsonObject& data) const { Q_UNUSED(data); }
+
+    virtual void load(const QJsonObject& data);
+    virtual void save(QJsonObject& data) const;
 
     virtual void accept(std::shared_ptr<LogItem> item);
 
+    static void setGlobalPalette(QColor text, QColor back);
+    static void setDefaultPalette();
+
 private:
     TableModel* _tableModel;
-
 };
 
 #endif // TERMINATOR_H

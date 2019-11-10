@@ -28,6 +28,7 @@
 #include <QMessageBox>
 
 #include "constants.h"
+#include "helpers.h"
 #include "table_model.h"
 #include "chain_elements/udp_socket.h"
 #include "chain_elements/text_input.h"
@@ -59,6 +60,7 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
     auto details = new QPlainTextEdit();
     details->setFrameStyle(QFrame::Panel | QFrame::Sunken);
     details->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
+    details->setAutoFillBackground(true);
     details->setContextMenuPolicy(Qt::CustomContextMenu);
 
     auto filters = new QWidget();
@@ -106,10 +108,10 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
 
     connect(logTable->selectionModel(), &QItemSelectionModel::currentRowChanged,
             [details](const QModelIndex &current, const QModelIndex &previous) {
-        Q_UNUSED(previous);
+        Q_UNUSED(previous)
         auto palette = details->palette();
         auto messageIndex = current.siblingAtColumn(2);
-        palette.setColor(QPalette::Window, messageIndex.data(Qt::BackgroundColorRole).value<QColor>());
+        palette.setColor(QPalette::Base, messageIndex.data(Qt::BackgroundColorRole).value<QColor>());
         palette.setColor(QPalette::Text, messageIndex.data(Qt::TextColorRole).value<QColor>());
         // It can look strange, but is tradeoff to get good table perfomance
         details->setPlainText(messageIndex.data(Qt::DisplayRole).toString().replace(NEWLINE_CHAR, '\n'));
@@ -281,11 +283,7 @@ void AntiLogViewer::loadConfiguration()
     configureProfileButton();
 
     // Colors
-    // TODO Unhardcode
-    QPalette palette(QColor(7, 54, 66));
-    palette.setColor(QPalette::Base, QColor(7, 54, 66));
-    palette.setColor(QPalette::Highlight, QColor(88, 110, 117));
-    QApplication::setPalette(palette);
+    TableView::setDefaultPalette();
 }
 
 void AntiLogViewer::saveConfiguration(bool silent)

@@ -12,39 +12,23 @@
 
 TableModel::TableModel(QObject *parent)
     : QAbstractTableModel(parent)
-    , _textColors({
-        // TODO Unhardcode
-        QColor(101, 123, 131),
-        QColor(147, 161, 161),
-        QColor(133, 153, 0),
-        QColor(181, 137, 0),
-        QColor(203, 75 ,22),
-        QColor(211, 55, 130),
-    })
-    , _backColors({
-        // TODO Unhardcode
-        QColor(7, 54, 66),
-        QColor(7, 54, 66),
-        QColor(7, 54, 66),
-        QColor(7, 54, 66),
-        QColor(7, 54, 66),
-        QColor(7, 54, 66),
-    })
     , _linked(false)
     , _clear(false)
+    , _textColors(static_cast<int>(LogColor::End))
+    , _backColors(static_cast<int>(LogColor::End))
 {
     startTimer(250);
 }
 
 int TableModel::rowCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
     return _rows.count();
 }
 
 int TableModel::columnCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
     return 3;
 }
 
@@ -102,9 +86,29 @@ std::shared_ptr<LogItem> TableModel::get(int index) const
     return _rows[index];
 }
 
+void TableModel::setTextColor(LogColor level, QColor color)
+{
+    _textColors[static_cast<int>(level)] = color;
+}
+
+void TableModel::setBackColor(LogColor level, QColor color)
+{
+    _backColors[static_cast<int>(level)] = color;
+}
+
+QColor TableModel::getTextColor(LogColor level) const
+{
+    return _textColors[static_cast<int>(level)];
+}
+
+QColor TableModel::getBackColor(LogColor level) const
+{
+    return _backColors[static_cast<int>(level)];
+}
+
 void TableModel::timerEvent(QTimerEvent *event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
 
     if (_clear) {
         _clear = false;

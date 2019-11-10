@@ -22,12 +22,12 @@ const QHostAddress LISTEN_HOST = QHostAddress::Any;
 UdpSocket::UdpSocket()
     : _listenPort(7071)
     , _levels({
-        { "TRACE", LogLevel::TRACE },
-        { "DEBUG", LogLevel::DEBUG },
-        { "INFO", LogLevel::INFO },
-        { "WARN", LogLevel::WARN },
-        { "ERROR", LogLevel::ERROR },
-        { "FATAL", LogLevel::FATAL },
+        { "TRACE", LogLevel::Trace },
+        { "DEBUG", LogLevel::Debug },
+        { "INFO", LogLevel::Info },
+        { "WARN", LogLevel::Warn },
+        { "ERROR", LogLevel::Error },
+        { "FATAL", LogLevel::Fatal },
     })
 {
     _socket = new QUdpSocket();
@@ -47,6 +47,7 @@ UdpSocket::UdpSocket()
                     logItem->Source = xml.attributes().value("logger").toString();
                     logItem->Timestamp = xml.attributes().value("timestamp").toLongLong();
                     logItem->Level = _levels[xml.attributes().value("level").toString()];
+                    logItem->Color = static_cast<LogColor>(logItem->Level);
                 } else if (xml.name() == "message") {
                     logItem->Message = xml.readElementText().replace('\n', NEWLINE_CHAR);
                 }
