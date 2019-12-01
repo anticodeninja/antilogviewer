@@ -19,7 +19,9 @@ const int DYNAMIC_PRE = 2;
 const int DYNAMIC_POST = 1;
 
 SourceFilter::SourceFilter()
-    : _mode(ChainElementMode::Pass)
+    : _layout(nullptr)
+    , _menu(nullptr)
+    , _mode(ChainElementMode::Pass)
 {
 }
 
@@ -74,8 +76,10 @@ void SourceFilter::load(const QJsonObject &data)
     if (data["sources"].isArray()) {
         auto sources = data["sources"].toArray();
         foreach (auto source, sources) {
-            if (source.isString())
+            if (source.isString()) {
+                addItemToAllSources(source.toString());
                 _sources.append(source.toString());
+            }
         }
     }
 }
@@ -92,27 +96,20 @@ void SourceFilter::save(QJsonObject &data) const
 
 void SourceFilter::accept(std::shared_ptr<LogItem> item)
 {
-    if (item->Type == LogItemType::Log && _sources.empty()) {
-        ChainElement::accept(item);
-        return;
-    }
+    switch (item->Type) {
 
-    if (item->Type == LogItemType::Clear) {
+    case LogItemType::Log:
+        addItemToAllSources(item->Source);
+        if (_sources.empty() || updateElement(check(item), _mode, item))
+            ChainElement::accept(item);
+        break;
+
+    case LogItemType::Clear:
         _allSources.clear();
         _menu->clear();
-
-        foreach (auto source, _allSources) {
-            _allSources.insert(source);
-            addItemToAllSources(source);
-        }
-
         ChainElement::accept(item);
-        return;
-    }
+        break;
 
-    if (updateElement(check(item), _mode, item)) {
-        ChainElement::accept(item);
-        return;
     }
 }
 
@@ -140,6 +137,9 @@ void SourceFilter::addItemToAllSources(QString source)
     if (_allSources.contains(source))
         return;
     _allSources.insert(source);
+
+    if (_menu == nullptr)
+        return;
 
     QMenu* menu = _menu;
     int index = 0;

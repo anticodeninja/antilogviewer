@@ -56,7 +56,7 @@ def main():
                 level=random.choice(LEVELS),
                 timestamp=int(time.time() * 1000.0),
                 thread=random.randint(0, 10),
-                message=random.choice(MESSAGES))
+                message='{} {}'.format(counter, random.choice(MESSAGES)))
             sock.sendto(message.encode('utf-8'), ('127.0.0.1', 7071))
             counter += 1
         print('\r{}'.format(counter), end='', flush=True)

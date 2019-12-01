@@ -47,14 +47,17 @@ void LevelFilter::save(QJsonObject &data) const
 
 void LevelFilter::accept(std::shared_ptr<LogItem> item)
 {
-    if (item->Type == LogItemType::Clear) {
-        ChainElement::accept(item);
-        return;
-    }
+    switch (item->Type) {
 
-    if (updateElement(check(item), _mode, item)) {
+    case LogItemType::Log:
+        if (updateElement(check(item), _mode, item))
+            ChainElement::accept(item);
+        break;
+
+    case LogItemType::Clear:
         ChainElement::accept(item);
-        return;
+        break;
+
     }
 }
 

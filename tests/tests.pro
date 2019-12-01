@@ -6,4 +6,10 @@ CONFIG -= app_bundle
 TEMPLATE = app
 
 INCLUDEPATH += ../src
-SOURCES += tst_utils.cpp ../src/helpers.cpp
+SOURCES += tst_utils.cpp\
+    ../src/helpers.cpp\
+    ../src/chain_elements/chain_element.cpp\
+    ../src/chain_elements/source_filter.cpp
+
+HEADERS += \
+    test_sink.h

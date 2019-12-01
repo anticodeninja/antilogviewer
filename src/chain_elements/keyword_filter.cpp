@@ -91,14 +91,17 @@ void KeywordFilter::save(QJsonObject &data) const
 
 void KeywordFilter::accept(std::shared_ptr<LogItem> item)
 {
-    if ((item->Type == LogItemType::Log && _keywords.empty()) || item->Type == LogItemType::Clear) {
-        ChainElement::accept(item);
-        return;
-    }
+    switch (item->Type) {
 
-    if (updateElement(check(item), _mode, item)) {
+    case LogItemType::Log:
+        if (_keywords.empty() || updateElement(check(item), _mode, item))
+            ChainElement::accept(item);
+        break;
+
+    case LogItemType::Clear:
         ChainElement::accept(item);
-        return;
+        break;
+
     }
 }
 

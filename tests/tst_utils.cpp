@@ -6,6 +6,8 @@
 #include <QtTest>
 
 #include "helpers.h"
+#include "chain_elements/source_filter.h"
+#include "test_sink.h"
 
 class Utils : public QObject
 {
@@ -14,6 +16,10 @@ class Utils : public QObject
 private slots:
     void splitOnChunksTest_data();
     void splitOnChunksTest();
+
+    void sourceFilterEmptyTest();
+    void sourceFilterPassTest();
+    void sourceFilterColorTest();
 };
 
 void Utils::splitOnChunksTest_data() {
@@ -59,6 +65,87 @@ void Utils::splitOnChunksTest() {
     }
 
     QCOMPARE(action(), false);
+}
+
+std::shared_ptr<LogItem> testItem() {
+    auto logItem = std::make_shared<LogItem>();
+    logItem->Type = LogItemType::Log;
+    logItem->Source = "Parent.Child 1";
+    logItem->Level = LogLevel::Debug;
+    logItem->Color = LogColor::Debug;
+    return logItem;
+}
+
+void Utils::sourceFilterEmptyTest()
+{
+    // Arrange
+    auto logItem = testItem();
+    SourceFilter filter;
+    TestSink sink;
+    filter.setNext(&sink);
+
+    // Act
+    filter.accept(logItem);
+
+    // Assert
+    QCOMPARE(filter.allSources(), QSet<QString>({"Parent.Child 1"}));
+    QCOMPARE(filter.sources(), QList<QString>());
+    QCOMPARE(sink.last(), logItem);
+}
+
+void Utils::sourceFilterPassTest()
+{
+    // Arrange
+    auto logItem = testItem();
+    QJsonObject config;
+    config["sources"] = QJsonArray({"Parent.Child 2"});
+    SourceFilter filter;
+    filter.load(config);
+    TestSink sink;
+    filter.setNext(&sink);
+
+    // Act
+    filter.accept(logItem);
+
+    // Assert
+    QCOMPARE(filter.allSources(), QSet<QString>({"Parent.Child 1", "Parent.Child 2"}));
+    QCOMPARE(filter.sources(), QList<QString>({"Parent.Child 2"}));
+    QCOMPARE(sink.last().use_count(), 0);
+}
+
+void Utils::sourceFilterColorTest()
+{
+    // Arrange
+    auto logItem = testItem();
+    QJsonObject config;
+    config["mode"] = static_cast<int>(ChainElementMode::Mark1);
+    config["sources"] = QJsonArray({"Parent.Child 2"});
+    SourceFilter filter;
+    filter.load(config);
+    TestSink sink;
+    filter.setNext(&sink);
+
+    // Act
+    filter.accept(logItem);
+
+    // Assert
+    QCOMPARE(filter.allSources(), QSet<QString>({"Parent.Child 1", "Parent.Child 2"}));
+    QCOMPARE(filter.sources(), QList<QString>({"Parent.Child 2"}));
+    QCOMPARE(sink.last(), logItem);
+    QCOMPARE(sink.last()->Color, LogColor::Debug);
+
+    // Arrange
+    auto logItem2 = testItem();
+    logItem2->Source = "Parent.Child 2";
+
+    // Act
+    filter.accept(logItem2);
+
+    // Assert
+    QCOMPARE(filter.allSources(), QSet<QString>({"Parent.Child 1", "Parent.Child 2"}));
+    QCOMPARE(filter.sources(), QList<QString>({"Parent.Child 2"}));
+    QCOMPARE(sink.last(), logItem2);
+    QCOMPARE(sink.last()->Color, LogColor::Custom1);
 }
 
 QTEST_APPLESS_MAIN(Utils)

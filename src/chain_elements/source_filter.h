@@ -30,6 +30,9 @@ public:
 
     virtual void accept(std::shared_ptr<LogItem> item);
 
+    QSet<QString> allSources() { return _allSources; }
+    QList<QString> sources() { return _sources; }
+
 private:
     bool check(std::shared_ptr<LogItem> item);
     void addItem(QString source);
@@ -41,6 +44,7 @@ private:
     QMenu* _menu;
     ChainElementMode _mode;
     QSet<QString> _allSources;
+    // TODO replace _sources with set
     QList<QString> _sources;
 };
 
