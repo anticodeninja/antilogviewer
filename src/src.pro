@@ -29,7 +29,8 @@ SOURCES += \
     chain_elements/table_view.cpp \
     chain_elements/text_input.cpp \
     helpers.cpp \
-    chain_elements/table_view_config.cpp
+    chain_elements/table_view_config.cpp \
+    table_view_hacks.cpp
 
 HEADERS += \
     antilogviewer.h \
@@ -46,7 +47,8 @@ HEADERS += \
     constants.h \
     helpers.h \
     default_palettes.h \
-    chain_elements/table_view_config.h
+    chain_elements/table_view_config.h \
+    table_view_hacks.h
 
 RESOURCES += \
     resources.qrc

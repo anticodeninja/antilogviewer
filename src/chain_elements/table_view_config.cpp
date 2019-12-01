@@ -38,6 +38,14 @@ QPushButton* createColorButton(QWidget *parent, QComboBox *ctrPalettes) {
     return ctrButton;
 }
 
+QComboBox* createElideSelector(QWidget *parent) {
+    auto ctrComboBox = new QComboBox(parent);
+    ctrComboBox->addItem("Left", Qt::ElideLeft);
+    ctrComboBox->addItem("Middle", Qt::ElideMiddle);
+    ctrComboBox->addItem("Right", Qt::ElideRight);
+    return ctrComboBox;
+}
+
 TableViewConfig::TableViewConfig(QWidget *parent) : QDialog(parent)
 {
     auto panelLayout = new QGridLayout(this);
@@ -62,6 +70,24 @@ TableViewConfig::TableViewConfig(QWidget *parent) : QDialog(parent)
         }
     });
     panelLayout->addWidget(_ctrPalettes, currentRow, 1, 1, 2);
+    currentRow += 1;
+
+    panelLayout->addWidget(new QLabel("Timestamp", this), currentRow, 0, 1, 1);
+    _ctrTimestamp = new QComboBox(parent);
+    _ctrTimestamp->addItem("hh:mm:ss.zzz");
+    _ctrTimestamp->addItem("yyyy-MM-dd HH:mm:ss.zzz");
+    _ctrTimestamp->setEditable(true);
+    panelLayout->addWidget(_ctrTimestamp, currentRow, 1, 1, 2);
+    currentRow += 1;
+
+    panelLayout->addWidget(new QLabel("Source Elide", this), currentRow, 0, 1, 1);
+    _ctrSourceElide = createElideSelector(this);
+    panelLayout->addWidget(_ctrSourceElide, currentRow, 1, 1, 2);
+    currentRow += 1;
+
+    panelLayout->addWidget(new QLabel("Message Elide", this), currentRow, 0, 1, 1);
+    _ctrMessageElide = createElideSelector(this);
+    panelLayout->addWidget(_ctrMessageElide, currentRow, 1, 1, 2);
     currentRow += 1;
 
     for (auto i = 0; i < static_cast<int>(LogColor::End); ++i) {
@@ -124,12 +150,42 @@ void TableViewConfig::setBackColor(LogColor level, QColor color)
     setButtonColor(_ctrBackColors[static_cast<int>(level)], color);
 }
 
-QColor TableViewConfig::getTextColor(LogColor level) const
+void TableViewConfig::setTimeFormat(const QString& value)
+{
+    _ctrTimestamp->setEditText(value);
+}
+
+void TableViewConfig::setSourceElide(Qt::TextElideMode value)
+{
+    _ctrSourceElide->setCurrentIndex(_ctrSourceElide->findData(value));
+}
+
+void TableViewConfig::setMessageElide(Qt::TextElideMode value)
+{
+    _ctrMessageElide->setCurrentIndex(_ctrMessageElide->findData(value));
+}
+
+QColor TableViewConfig::textColor(LogColor level) const
 {
     return getButtonColor(_ctrTextColors[static_cast<int>(level)]);
 }
 
-QColor TableViewConfig::getBackColor(LogColor level) const
+QColor TableViewConfig::backColor(LogColor level) const
 {
     return getButtonColor(_ctrBackColors[static_cast<int>(level)]);
+}
+
+QString TableViewConfig::timeFormat() const
+{
+    return _ctrTimestamp->currentText();
+}
+
+Qt::TextElideMode TableViewConfig::sourceElide() const
+{
+    return static_cast<Qt::TextElideMode>(_ctrSourceElide->currentData().toInt());
+}
+
+Qt::TextElideMode TableViewConfig::messageElide() const
+{
+    return static_cast<Qt::TextElideMode>(_ctrMessageElide->currentData().toInt());
 }

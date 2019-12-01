@@ -22,8 +22,15 @@ public:
     void calcPalette();
     void setTextColor(LogColor level, QColor color);
     void setBackColor(LogColor level, QColor color);
-    QColor getTextColor(LogColor level) const;
-    QColor getBackColor(LogColor level) const;
+    void setTimeFormat(const QString& value);
+    void setSourceElide(Qt::TextElideMode value);
+    void setMessageElide(Qt::TextElideMode value);
+
+    QColor textColor(LogColor level) const;
+    QColor backColor(LogColor level) const;
+    QString timeFormat() const;
+    Qt::TextElideMode sourceElide() const;
+    Qt::TextElideMode messageElide() const;
 
 signals:
 
@@ -31,6 +38,9 @@ public slots:
 
 private:
     QComboBox* _ctrPalettes;
+    QComboBox* _ctrTimestamp;
+    QComboBox* _ctrSourceElide;
+    QComboBox* _ctrMessageElide;
     QVector<QPushButton*> _ctrTextColors;
     QVector<QPushButton*> _ctrBackColors;
 };

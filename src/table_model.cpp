@@ -16,6 +16,9 @@ TableModel::TableModel(QObject *parent)
     , _clear(false)
     , _textColors(static_cast<int>(LogColor::End))
     , _backColors(static_cast<int>(LogColor::End))
+    , _timeFormat("hh:mm:ss.zzz")
+    , _sourceElide(Qt::ElideMiddle)
+    , _messageElide(Qt::ElideRight)
 {
     startTimer(250);
 }
@@ -36,11 +39,11 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
 {
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
-        case 0:
-            return QDateTime::fromMSecsSinceEpoch(_rows[index.row()]->Timestamp).toString("hh:mm:ss.zzz");
-        case 1:
+        case static_cast<int>(Column::Timestamp):
+            return QDateTime::fromMSecsSinceEpoch(_rows[index.row()]->Timestamp).toString(_timeFormat);
+        case static_cast<int>(Column::Source):
             return _rows[index.row()]->Source;
-        case 2:
+        case static_cast<int>(Column::Message):
             return _rows[index.row()]->Message;
         }
     } else if (role == Qt::BackgroundColorRole) {
@@ -57,11 +60,11 @@ QVariant TableModel::headerData(int section, Qt::Orientation orientation, int ro
     if (role == Qt::DisplayRole && orientation == Qt::Horizontal)
     {
         switch (section) {
-        case 0:
+        case static_cast<int>(Column::Timestamp):
             return QString("Timestamp");
-        case 1:
+        case static_cast<int>(Column::Source):
             return QString("Source");
-        case 2:
+        case static_cast<int>(Column::Message):
             return QString("Message");
         default:
             return QVariant();
@@ -96,14 +99,31 @@ void TableModel::setBackColor(LogColor level, QColor color)
     _backColors[static_cast<int>(level)] = color;
 }
 
-QColor TableModel::getTextColor(LogColor level) const
+QColor TableModel::textColor(LogColor level) const
 {
     return _textColors[static_cast<int>(level)];
 }
 
-QColor TableModel::getBackColor(LogColor level) const
+QColor TableModel::backColor(LogColor level) const
 {
     return _backColors[static_cast<int>(level)];
+}
+
+QStyleOptionViewItem TableModel::options(const QStyleOptionViewItem& option, int column)
+{
+    if (column == static_cast<int>(Column::Source)) {
+        auto overrided = option;
+        overrided.textElideMode = _sourceElide;
+        return overrided;
+    }
+
+    if (column == static_cast<int>(Column::Message)) {
+        auto overrided = option;
+        overrided.textElideMode = _messageElide;
+        return overrided;
+    }
+
+    return option;
 }
 
 void TableModel::timerEvent(QTimerEvent *event)

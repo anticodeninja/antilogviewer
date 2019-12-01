@@ -41,22 +41,29 @@ void TableView::createUI(QGridLayout *layout) {
     auto ctrConfigure = new QPushButton("Configure");
     ctrConfigure->connect(ctrConfigure, &QPushButton::clicked, [this, ctrConfigure] {
         auto config = new TableViewConfig(ctrConfigure);
+
+        config->setTimeFormat(_tableModel->timeFormat());
+        config->setSourceElide(_tableModel->sourceElide());
+        config->setMessageElide(_tableModel->messageElide());
         for (auto i = 0; i < static_cast<int>(LogColor::End); ++i) {
             auto color = static_cast<LogColor>(i);
-            config->setTextColor(color, _tableModel->getTextColor(color));
-            config->setBackColor(color, _tableModel->getBackColor(color));
+            config->setTextColor(color, _tableModel->textColor(color));
+            config->setBackColor(color, _tableModel->backColor(color));
         }
         config->calcPalette();
 
         if (config->exec() != QDialog::Accepted)
             return;
 
+        _tableModel->setTimeFormat(config->timeFormat());
+        _tableModel->setSourceElide(config->sourceElide());
+        _tableModel->setMessageElide(config->messageElide());
         for (auto i = 0; i < static_cast<int>(LogColor::End); ++i) {
             auto color = static_cast<LogColor>(i);
-            _tableModel->setTextColor(color, config->getTextColor(color));
-            _tableModel->setBackColor(color, config->getBackColor(color));
+            _tableModel->setTextColor(color, config->textColor(color));
+            _tableModel->setBackColor(color, config->backColor(color));
         }
-        setGlobalPalette(_tableModel->getTextColor(LogColor::Window), _tableModel->getBackColor(LogColor::Window));
+        setGlobalPalette(_tableModel->textColor(LogColor::Window), _tableModel->backColor(LogColor::Window));
     });
 
     auto ctrClear = new QPushButton("Clear");
@@ -72,6 +79,13 @@ void TableView::createUI(QGridLayout *layout) {
 
 void TableView::load(const QJsonObject &data)
 {
+    if (data["timeFormat"].isString())
+        _tableModel->setTimeFormat(data["timeFormat"].toString());
+    if (data["sourceElide"].isDouble())
+        _tableModel->setSourceElide(static_cast<Qt::TextElideMode>(data["sourceElide"].toInt()));
+    if (data["messageElide"].isDouble())
+        _tableModel->setMessageElide(static_cast<Qt::TextElideMode>(data["messageElide"].toInt()));
+
     if (data["textColors"].isArray()) {
         auto textColors = data["textColors"].toArray();
         for (auto i = 0; i < static_cast<int>(LogColor::End); ++i) {
@@ -92,15 +106,19 @@ void TableView::load(const QJsonObject &data)
         }
     }
 
-    setGlobalPalette(_tableModel->getTextColor(LogColor::Window), _tableModel->getBackColor(LogColor::Window));
+    setGlobalPalette(_tableModel->textColor(LogColor::Window), _tableModel->backColor(LogColor::Window));
 }
 
 void TableView::save(QJsonObject &data) const
 {
+    data["timeFormat"] = _tableModel->timeFormat();
+    data["sourceElide"] = _tableModel->sourceElide();
+    data["messageElide"] = _tableModel->messageElide();
+
     QJsonArray textColors, backColors;
     for (auto i = 0; i < static_cast<int>(LogColor::End); ++i) {
-        textColors.append(_tableModel->getTextColor(static_cast<LogColor>(i)).name());
-        backColors.append(_tableModel->getBackColor(static_cast<LogColor>(i)).name());
+        textColors.append(_tableModel->textColor(static_cast<LogColor>(i)).name());
+        backColors.append(_tableModel->backColor(static_cast<LogColor>(i)).name());
     }
     data["textColors"] = textColors;
     data["backColors"] = backColors;

@@ -40,6 +40,8 @@ TEMPLATE = '<log4j:event logger="{logger}" level="{level}" timestamp="{timestamp
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('-t', '--target', default='127.0.0.1',
+                        help='address of antilogviewer')
     parser.add_argument('-s', '--bunch-size', type=int, default=1,
                         help='amount of packets sended in one bunch')
     parser.add_argument('-i', '--send-interval', type=float, default=0.2,
@@ -57,7 +59,7 @@ def main():
                 timestamp=int(time.time() * 1000.0),
                 thread=random.randint(0, 10),
                 message='{} {}'.format(counter, random.choice(MESSAGES)))
-            sock.sendto(message.encode('utf-8'), ('127.0.0.1', 7071))
+            sock.sendto(message.encode('utf-8'), (args.target, 7071))
             counter += 1
         print('\r{}'.format(counter), end='', flush=True)
         time.sleep(args.send_interval)

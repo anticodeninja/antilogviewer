@@ -75,7 +75,8 @@ void TextInput::createUI(QGridLayout* layout) {
                 logItem->Source = line.mid(sep2 + 1, sep3 - sep2 - 1);
                 logItem->Message = line.mid(sep3 + 1);
             } else {
-                logItem->Message += NEWLINE_CHAR + line;
+                if (logItem != nullptr)
+                    logItem->Message += NEWLINE_CHAR + line;
             }
         }
 

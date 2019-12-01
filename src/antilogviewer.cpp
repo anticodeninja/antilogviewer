@@ -30,6 +30,7 @@
 #include "constants.h"
 #include "helpers.h"
 #include "table_model.h"
+#include "table_view_hacks.h"
 #include "chain_elements/udp_socket.h"
 #include "chain_elements/text_input.h"
 #include "chain_elements/level_filter.h"
@@ -53,6 +54,7 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
     logTable->setWordWrap(false);
     logTable->setSelectionMode(QAbstractItemView::SingleSelection);
     logTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    logTable->setItemDelegate(new TableViewColumnStyledItem(_logModel));
     logTable->setModel(_logModel);
     logTable->horizontalHeader()->setStretchLastSection(true);
     logTable->verticalHeader()->setDefaultSectionSize(logTable->verticalHeader()->minimumSectionSize());
