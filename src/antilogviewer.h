@@ -9,6 +9,7 @@
 #include <QJsonObject>
 #include <QMainWindow>
 #include <QList>
+#include <QMap>
 
 class ChainElement;
 class TableModel;

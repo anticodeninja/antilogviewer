@@ -16,8 +16,9 @@ int getRow(QGridLayout *layout, QWidget *widget) {
     return row;
 }
 
-void insertRow(QGridLayout *layout, int offset, int rows) {
-    for (auto i = rows - 1; i > offset; --i) {
+void insertRow(QGridLayout *layout, int offset) {
+    auto rowCount = layout->rowCount();
+    for (auto i = rowCount; i > offset; --i) {
         for (auto j = 0; j < layout->columnCount(); ++j) {
             auto item = layout->itemAtPosition(i - 1, j);
             if (item == nullptr)
@@ -30,12 +31,13 @@ void insertRow(QGridLayout *layout, int offset, int rows) {
     }
 }
 
-void removeRow(QGridLayout *layout, int offset, int rows) {
+void removeRow(QGridLayout *layout, int offset) {
     for (auto j = 0; j < layout->columnCount(); ++j) {
         delete layout->itemAtPosition(offset, j)->widget();
     }
 
-    for (auto i = offset; i < rows; ++i) {
+    auto rowCount = layout->rowCount();
+    for (auto i = offset; i < rowCount; ++i) {
         for (auto j = 0; j < layout->columnCount(); ++j) {
             auto item = layout->itemAtPosition(i + 1, j);
             if (item == nullptr)

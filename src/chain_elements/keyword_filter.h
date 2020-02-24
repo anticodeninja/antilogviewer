@@ -29,9 +29,9 @@ public:
 
 private:
     bool check(std::shared_ptr<LogItem> item);
-    void addItem(const QString& keyword);
-    void addUi(const QString& keyword);
-    void remove(int index);
+    void addItemAndRow(const QString& keyword);
+    void addRow(const QString& keyword, int index);
+    void removeItemAndRow(int index);
 
     QGridLayout* _layout;
     ChainElementMode _mode;

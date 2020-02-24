@@ -16,7 +16,6 @@
 #include "helpers.h"
 
 const int DYNAMIC_PRE = 2;
-const int DYNAMIC_POST = 1;
 
 SourceFilter::SourceFilter()
     : _layout(nullptr)
@@ -38,11 +37,13 @@ void SourceFilter::createUI(QGridLayout *layout)
     layout->addWidget(ctrMode, 1, 0, 1, 2);
     layout->addWidget(ctrAdd, DYNAMIC_PRE, 0, 1, 2);
 
-    foreach (auto source, _sources)
-        addUi(source);
+    for (auto i = 0; i < _sources.length(); ++i)
+        addRow(_sources[i], i);
+    foreach (auto source, _allSources)
+        addRowToAllSources(source);
 
     _menu->connect(_menu, &QMenu::triggered, [this](QAction* action){
-        addItem(action->data().toString());
+        addItemAndRow(action->data().toString());
     });
 }
 
@@ -56,13 +57,13 @@ void SourceFilter::createMenuOnEntry(QMenu *menu, std::shared_ptr<LogItem> item)
             menu->addAction(
                         QString("Add \"%0\" to %1").arg(part).arg(fullname()),
                         [this, part](){
-                addItem(part);
+                addItemAndRow(part);
             });
         } else {
             menu->addAction(
                         QString("Remove \"%0\" from %1").arg(part).arg(fullname()),
                         [this, index](){
-                remove(index);
+                removeItemAndRow(index);
             });
         }
     }
@@ -77,7 +78,7 @@ void SourceFilter::load(const QJsonObject &data)
         auto sources = data["sources"].toArray();
         foreach (auto source, sources) {
             if (source.isString()) {
-                addItemToAllSources(source.toString());
+                addItemAndRowToAllSources(source.toString());
                 _sources.append(source.toString());
             }
         }
@@ -99,7 +100,7 @@ void SourceFilter::accept(std::shared_ptr<LogItem> item)
     switch (item->Type) {
 
     case LogItemType::Log:
-        addItemToAllSources(item->Source);
+        addItemAndRowToAllSources(item->Source);
         if (_sources.empty() || updateElement(check(item), _mode, item))
             ChainElement::accept(item);
         break;
@@ -123,21 +124,26 @@ bool SourceFilter::check(std::shared_ptr<LogItem> item)
     return false;
 }
 
-void SourceFilter::addItem(QString source)
+void SourceFilter::addItemAndRow(QString source)
 {
     if (_sources.contains(source))
         return;
 
     _sources.append(source);
-    addUi(source);
+    addRow(source, _sources.length() - 1);
 }
 
-void SourceFilter::addItemToAllSources(QString source)
+void SourceFilter::addItemAndRowToAllSources(QString source)
 {
     if (_allSources.contains(source))
         return;
-    _allSources.insert(source);
 
+    _allSources.insert(source);
+    addRowToAllSources(source);
+}
+
+void SourceFilter::addRowToAllSources(QString source)
+{
     if (_menu == nullptr)
         return;
 
@@ -192,25 +198,25 @@ void SourceFilter::addItemToAllSources(QString source)
     }
 }
 
-void SourceFilter::addUi(QString source)
+void SourceFilter::addRow(QString source, int index)
 {
     auto ctrLabel = new QLabel(source);
     ctrLabel->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored));
     auto ctrRemove = new QPushButton("-");
     ctrRemove->setFixedWidth(20);
 
-    auto offset = _sources.count() + DYNAMIC_PRE - 1;
-    insertRow(_layout, offset, _sources.count() + DYNAMIC_PRE + DYNAMIC_POST);
+    auto offset = DYNAMIC_PRE + index;
+    insertRow(_layout, offset);
     _layout->addWidget(ctrLabel, offset, 0);
     _layout->addWidget(ctrRemove, offset, 1);
 
     ctrRemove->connect(ctrRemove, &QPushButton::clicked, [this, ctrRemove] {
-        remove(getRow(_layout, ctrRemove) - DYNAMIC_PRE);
+        removeItemAndRow(getRow(_layout, ctrRemove) - DYNAMIC_PRE);
     });
 }
 
-void SourceFilter::remove(int index)
+void SourceFilter::removeItemAndRow(int index)
 {
     _sources.removeAt(index);
-    removeRow(_layout, index + DYNAMIC_PRE, _sources.count() + DYNAMIC_PRE + DYNAMIC_POST);
+    removeRow(_layout, DYNAMIC_PRE - index);
 }

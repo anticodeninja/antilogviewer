@@ -11,8 +11,8 @@ class QWidget;
 class QGridLayout;
 
 int getRow(QGridLayout* layout, QWidget* widget);
-void insertRow(QGridLayout* layout, int offset, int rows);
-void removeRow(QGridLayout* layout, int offset, int rows);
+void insertRow(QGridLayout* layout, int offset);
+void removeRow(QGridLayout* layout, int offset);
 
 // Helper for splitting source string in chunks, some kind of a "very simple iterator"
 bool splitOnChunks(const QString& source, int& index, QString* part, QString* chunk);

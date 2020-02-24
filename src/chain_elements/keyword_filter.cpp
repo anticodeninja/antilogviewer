@@ -18,7 +18,6 @@
 #include "helpers.h"
 
 const int DYNAMIC_PRE = 2;
-const int DYNAMIC_POST = 1;
 
 KeywordFilter::KeywordFilter()
     : _mode(ChainElementMode::Pass)
@@ -38,11 +37,11 @@ void KeywordFilter::createUI(QGridLayout* layout)
     layout->addWidget(ctrInput, DYNAMIC_PRE, 0);
     layout->addWidget(ctrAdd, DYNAMIC_PRE, 1);
 
-    foreach (auto keyword, _keywords)
-        addUi(keyword);
+    for (auto i = 0; i < _keywords.length(); ++i)
+        addRow(_keywords[i], i);
 
     ctrAdd->connect(ctrAdd, &QPushButton::clicked, [this, ctrInput] {
-        addItem(ctrInput->text());
+        addItemAndRow(ctrInput->text());
         ctrInput->clear();
     });
 }
@@ -54,13 +53,13 @@ void KeywordFilter::createMenuOnSelection(QMenu *menu, const QString &selection)
         menu->addAction(
                     QString("Add to %0").arg(fullname()),
                     [this, selection](){
-            addItem(selection);
+            addItemAndRow(selection);
         });
     } else {
         menu->addAction(
                     QString("Remove from %0").arg(fullname()),
                     [this, index](){
-            remove(index);
+            removeItemAndRow(index);
         });
     }
 }
@@ -115,33 +114,33 @@ bool KeywordFilter::check(std::shared_ptr<LogItem> item)
     return false;
 }
 
-void KeywordFilter::addItem(const QString &keyword)
+void KeywordFilter::addItemAndRow(const QString &keyword)
 {
     if (keyword.count() != 0 && !_keywords.contains(keyword)) {
         _keywords.append(keyword);
-        addUi(keyword);
+        addRow(keyword, _keywords.count() - 1);
     }
 }
 
-void KeywordFilter::addUi(const QString& keyword)
+void KeywordFilter::addRow(const QString& keyword, int index)
 {
     auto ctrLabel = new QLabel(keyword);
     ctrLabel->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored));
     auto ctrRemove = new QPushButton("-");
     ctrRemove->setFixedWidth(20);
 
-    auto offset = _keywords.count() + DYNAMIC_PRE - 1;
-    insertRow(_layout, offset, _keywords.count() + DYNAMIC_PRE + DYNAMIC_POST);
+    auto offset = DYNAMIC_PRE + index;
+    insertRow(_layout, offset);
     _layout->addWidget(ctrLabel, offset, 0);
     _layout->addWidget(ctrRemove, offset, 1);
 
     ctrRemove->connect(ctrRemove, &QPushButton::clicked, [this, ctrRemove] {
-        remove(getRow(_layout, ctrRemove) - DYNAMIC_PRE);
+        removeItemAndRow(getRow(_layout, ctrRemove) - DYNAMIC_PRE);
     });
 }
 
-void KeywordFilter::remove(int index)
+void KeywordFilter::removeItemAndRow(int index)
 {
     _keywords.removeAt(index);
-    removeRow(_layout, index + DYNAMIC_PRE, _keywords.count() + DYNAMIC_PRE + DYNAMIC_POST);
+    removeRow(_layout, DYNAMIC_PRE + index);
 }
