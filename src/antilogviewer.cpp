@@ -286,9 +286,6 @@ void AntiLogViewer::loadConfiguration()
     if (!loadProfile(DEFAULT_PROFILE))
         generateDefaultProfile();
     configureProfileButton();
-
-    // Colors
-    TableView::setDefaultPalette();
 }
 
 void AntiLogViewer::saveConfiguration(bool silent)
@@ -395,6 +392,7 @@ void AntiLogViewer::saveProfile(QString name)
 
 void AntiLogViewer::generateDefaultProfile()
 {
+    TableView::setDefaultPalette();
     insertChainElement(new UdpSocket(), 0);
     insertChainElement(new MemoryStorage(), 1);
     insertChainElement(new LevelFilter(), 2);
