@@ -24,7 +24,7 @@ LOGGERS = [
     'Parent',
     'Parent.Base 1',
     'Parent.Base 1.Extra Base 1',
-    'Parent.Base 1.Extra Base 2',
+    'Parent.Base 1.Extraloooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong Base 1',
     'Parent.Base 2',
     'Parent.Base 3',
 ]

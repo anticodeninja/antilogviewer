@@ -126,6 +126,7 @@ void KeywordFilter::addItem(const QString &keyword)
 void KeywordFilter::addUi(const QString& keyword)
 {
     auto ctrLabel = new QLabel(keyword);
+    ctrLabel->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored));
     auto ctrRemove = new QPushButton("-");
     ctrRemove->setFixedWidth(20);
 

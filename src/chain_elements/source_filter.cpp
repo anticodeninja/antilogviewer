@@ -195,6 +195,7 @@ void SourceFilter::addItemToAllSources(QString source)
 void SourceFilter::addUi(QString source)
 {
     auto ctrLabel = new QLabel(source);
+    ctrLabel->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored));
     auto ctrRemove = new QPushButton("-");
     ctrRemove->setFixedWidth(20);
 
