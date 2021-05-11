@@ -41,7 +41,7 @@ Shut Up and Take My Mon... Respect
 
 Get latest version:
 
-- Windows: use binaries from [AppVeyor](https://ci.appveyor.com/project/anticodeninja/antilogviewer/build/artifacts).
+- Windows: use binaries from [Releases](https://github.com/anticodeninja/antilogviewer/releases/download/latest/antilogviewer.zip).
 - Linux: you choose the way, compile it from sources.
 - Mac: the same, compile it from sources or pay someone who can do it for you.
 

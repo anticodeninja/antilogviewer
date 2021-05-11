@@ -5,26 +5,34 @@ branches:
     - master
 
 max_jobs: 1
+skip_non_tags: true
 
-image: Visual Studio 2017
+image: Visual Studio 2019
 
 install:
-  - set QTDIR=C:\Qt\5.13\mingw73_64
-  - set PATH=%QTDIR%\bin;C:\Qt\Tools\mingw730_64\bin;%PATH%
+  - set QTDIR=C:\Qt\5.15\mingw81_64
+  - set PATH=%QTDIR%\bin;C:\Qt\Tools\mingw810_64\bin;%PATH%
 
 before_build:
   - gitversion /l console /output buildserver
 
 build_script:
-  - qmake antilogviewer.pro src
+  - cmake -G "MinGW Makefiles" -B build -DCMAKE_PREFIX_PATH=%QTDIR%\lib\cmake
+  - cd build/src
   - mingw32-make
 
 after_build:
-  - rm release/*.{o,h,cpp} || true
-  - mkdir release\platforms
-  - cp %QTDIR%\plugins\platforms\qwindows.dll release\platforms\
-  - cp %QTDIR%\bin\{libgcc_s_seh-1.dll,libstdc++-6.dll,libwinpthread-1.dll,Qt5Core.dll,Qt5Gui.dll,Qt5Network.dll,Qt5Widgets.dll} release\
+  - rm -r {antilogviewer_autogen,CMakeFiles,cmake_install.cmake,CMakeCache.txt,Makefile} || true
 
 artifacts:
-  - path: release
+  - path: build/src
     name: antilogviewer
+
+deploy:
+  description: 'Latest binaries'
+  provider: GitHub
+  auth_token:
+    secure: BvYEGcp0DNNhWnLZB8+WKxtanQ0FEkzVyoyi6Vzv8EpOGpnXVbW7PwcytvsqgM1F
+  on:
+    branch: master
+    APPVEYOR_REPO_TAG: true
