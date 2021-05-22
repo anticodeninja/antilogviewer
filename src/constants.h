@@ -51,6 +51,20 @@ enum class LogColor
     End,
 };
 
+const QString ColorNames[] = {
+    "Trace",
+    "Debug",
+    "Info",
+    "Warn",
+    "Error",
+    "Fatal",
+    "Window",
+    "Custom 1",
+    "Custom 2",
+    "Custom 3",
+    "Custom 4",
+};
+
 enum class Column
 {
     Id,

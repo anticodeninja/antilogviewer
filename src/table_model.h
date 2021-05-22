@@ -26,8 +26,10 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+
     void add(std::shared_ptr<LogItem> item);
     std::shared_ptr<LogItem> get(int index) const;
+    void clear();
 
     void setTextColor(LogColor level, QColor color);
     void setBackColor(LogColor level, QColor color);

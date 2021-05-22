@@ -109,6 +109,9 @@ void TableView::load(const QJsonObject &data)
     if (data["widths"].isArray()) {
         auto widths = data["widths"].toArray();
         for (auto i = 0; i < static_cast<int>(Column::End); ++i) {
+            if (i == static_cast<int>(Column::Message))
+                continue;
+
             if (widths.size() > i && widths[i].isDouble())
                 _tableView->setColumnWidth(i, widths[i].toInt());
             else
@@ -151,14 +154,17 @@ void TableView::setDefaultSettings()
                 DARK_TEXT_COLORS[static_cast<int>(LogColor::Window)],
                 DARK_BACK_COLORS[static_cast<int>(LogColor::Window)]);
 
-    for (auto i = 0; i < _tableModel->columnCount(); ++i)
-        _tableView->setColumnWidth(i, COLUMN_WIDTHS[i]);
+    for (auto i = 0; i < static_cast<int>(Column::End); ++i)
+    {
+        if (i != static_cast<int>(Column::Message))
+            _tableView->setColumnWidth(i, COLUMN_WIDTHS[i]);
+    }
 }
 
 void TableView::setGlobalPalette(const QColor& text, const QColor& back)
 {
     QPalette palette(back);
     palette.setColor(QPalette::Base, back);
-    palette.setColor(QPalette::Highlight, text);
+    palette.setColor(QPalette::Text, text);
     QApplication::setPalette(palette);
 }

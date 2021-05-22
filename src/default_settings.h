@@ -17,12 +17,12 @@ const QColor DARK_TEXT_COLORS[] = {
     QColor(SOLARIZED_GREEN),
     QColor(SOLARIZED_YELLOW),
     QColor(SOLARIZED_RED),
-    QColor(SOLARIZED_BASE02),
-    QColor(SOLARIZED_BASE01),
-    QColor(SOLARIZED_BASE02),
-    QColor(SOLARIZED_BASE02),
-    QColor(SOLARIZED_BASE02),
-    QColor(SOLARIZED_BASE02),
+    QColor(SOLARIZED_BASE03),
+    QColor(SOLARIZED_BASE1),
+    QColor(SOLARIZED_BASE03),
+    QColor(SOLARIZED_BASE03),
+    QColor(SOLARIZED_BASE03),
+    QColor(SOLARIZED_BASE03),
 };
 
 const QColor DARK_BACK_COLORS[] = {
@@ -40,17 +40,17 @@ const QColor DARK_BACK_COLORS[] = {
 };
 
 const QColor LIGHT_TEXT_COLORS[] = {
-    QColor(SOLARIZED_BASE1),
-    QColor(SOLARIZED_BASE00),
+    QColor(SOLARIZED_BASE01),
+    QColor(SOLARIZED_BASE02),
     QColor(SOLARIZED_GREEN),
     QColor(SOLARIZED_YELLOW),
     QColor(SOLARIZED_RED),
-    QColor(SOLARIZED_BASE02),
-    QColor(SOLARIZED_BASE0),
-    QColor(SOLARIZED_BASE02),
-    QColor(SOLARIZED_BASE02),
-    QColor(SOLARIZED_BASE02),
-    QColor(SOLARIZED_BASE02),
+    QColor(SOLARIZED_BASE3),
+    QColor(SOLARIZED_BASE03),
+    QColor(SOLARIZED_BASE3),
+    QColor(SOLARIZED_BASE3),
+    QColor(SOLARIZED_BASE3),
+    QColor(SOLARIZED_BASE3),
 };
 
 const QColor LIGHT_BACK_COLORS[] = {
@@ -65,20 +65,6 @@ const QColor LIGHT_BACK_COLORS[] = {
     QColor(SOLARIZED_VIOLET),
     QColor(SOLARIZED_BLUE),
     QColor(SOLARIZED_CYAN),
-};
-
-const QString ColorNames[] = {
-    "Trace",
-    "Debug",
-    "Info",
-    "Warn",
-    "Error",
-    "Fatal",
-    "Window",
-    "Custom 1",
-    "Custom 2",
-    "Custom 3",
-    "Custom 4",
 };
 
 const int COLUMN_WIDTHS[] = {

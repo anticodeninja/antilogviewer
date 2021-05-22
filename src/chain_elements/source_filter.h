@@ -35,10 +35,10 @@ public:
 
 private:
     bool check(std::shared_ptr<LogItem> item);
-    void addItemAndRow(QString source);
-    void addItemAndRowToAllSources(QString source);
-    void addRowToAllSources(QString source);
-    void addRow(QString source, int index);
+    void addItemAndRow(const QString& source);
+    void addItemAndRowToAllSources(const QString& source);
+    void addRowToAllSources(const QString& source);
+    void addRow(const QString& source, int index);
     void removeItemAndRow(int index);
 
     QGridLayout* _layout;

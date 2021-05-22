@@ -9,13 +9,9 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QApplication>
-#include <QWidget>
 #include <QSplitter>
-#include <QGridLayout>
-#include <QVBoxLayout>
 #include <QHeaderView>
 #include <QScrollBar>
-#include <QGroupBox>
 #include <QTableView>
 #include <QScrollArea>
 #include <QLabel>
@@ -28,7 +24,6 @@
 #include <QMessageBox>
 
 #include "constants.h"
-#include "helpers.h"
 #include "table_model.h"
 #include "table_view_hacks.h"
 #include "chain_elements/udp_socket.h"
@@ -109,18 +104,21 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
     });
 
     connect(_logTable->selectionModel(), &QItemSelectionModel::currentRowChanged,
-            [details](const QModelIndex &current, const QModelIndex &previous) {
+            [this, details](const QModelIndex &current, const QModelIndex &previous) {
         Q_UNUSED(previous)
-        auto messageIndex = current.siblingAtColumn(2);
-        if (!messageIndex.isValid())
-            return;
 
-        auto palette = details->palette();
-        palette.setColor(QPalette::Base, messageIndex.data(Qt::BackgroundColorRole).value<QColor>());
-        palette.setColor(QPalette::Text, messageIndex.data(Qt::TextColorRole).value<QColor>());
-        // It can look strange, but is tradeoff to get good table perfomance
-        details->setPlainText(messageIndex.data(Qt::DisplayRole).toString().replace(NEWLINE_CHAR, '\n'));
-        details->setPalette(palette);
+        auto rowId = current.row();
+        if (rowId < 0 || rowId >= _logModel->rowCount())
+            return;
+        auto item = _logModel->get(rowId);
+
+        details->setPlainText(QString("%0#%1 %2\n%3\n%4")
+            .arg(QDateTime::fromMSecsSinceEpoch(item->Timestamp).toString("yyyy-MM-dd HH:mm:ss.zzz"))
+            .arg(item->Id)
+            .arg(ColorNames[static_cast<int>(item->Level)])
+            .arg(item->Source)
+            // It can look strange, but is tradeoff to get good table performance
+            .arg(QString(item->Message).replace(NEWLINE_CHAR, '\n')));
     });
 
     connect(_logTable->verticalScrollBar(), &QScrollBar::valueChanged, [this, ctrAutoScroll](int value) {
@@ -168,10 +166,7 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
     loadConfiguration();
 }
 
-AntiLogViewer::~AntiLogViewer()
-{
-
-}
+AntiLogViewer::~AntiLogViewer() = default;
 
 void AntiLogViewer::addChainElement(ChainElement *element)
 {
@@ -258,8 +253,8 @@ void AntiLogViewer::updateChainSlots()
         counters[element->name()] = slotId + 1;
 
         element->setSlotId(slotId);
-        auto layout = static_cast<QGridLayout*>(element->widget()->layout());
-        auto widget = static_cast<QPushButton*>(layout->itemAtPosition(0, 0)->widget());
+        auto layout = dynamic_cast<QGridLayout*>(element->widget()->layout());
+        auto widget = dynamic_cast<QPushButton*>(layout->itemAtPosition(0, 0)->widget());
         widget->setText(element->fullname());
     }
 }
@@ -343,7 +338,10 @@ bool AntiLogViewer::loadProfile(const QString& profileName)
             element = new MemoryStorage();
         } else if (elementName == "Table View") {
             if (!_logModel->linked())
+            {
                 element = new TableView(_logTable, _logModel);
+                _logModel->clear();
+            }
         }
 
         if (element == nullptr)

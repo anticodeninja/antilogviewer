@@ -83,14 +83,19 @@ void TableModel::add(std::shared_ptr<LogItem> item)
     if (item->Type == LogItemType::Log) {
         _queue.append(item);
     } else {
-        _queue.clear();
-        _clear = true;
+        clear();
     }
 }
 
 std::shared_ptr<LogItem> TableModel::get(int index) const
 {
     return _rows[index];
+}
+
+void TableModel::clear()
+{
+    _queue.clear();
+    _clear = true;
 }
 
 void TableModel::setTextColor(LogColor level, QColor color)
