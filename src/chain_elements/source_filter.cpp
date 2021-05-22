@@ -55,13 +55,13 @@ void SourceFilter::createMenuOnEntry(QMenu *menu, std::shared_ptr<LogItem> item)
         auto index = _sources.indexOf(part);
         if (index == -1) {
             menu->addAction(
-                        QString("Add \"%0\" to %1").arg(part).arg(fullname()),
+                        QString("Add \"%0\" to %1").arg(part, fullname()),
                         [this, part](){
                 addItemAndRow(part);
             });
         } else {
             menu->addAction(
-                        QString("Remove \"%0\" from %1").arg(part).arg(fullname()),
+                        QString("Remove \"%0\" from %1").arg(part, fullname()),
                         [this, index](){
                 removeItemAndRow(index);
             });
@@ -218,5 +218,5 @@ void SourceFilter::addRow(QString source, int index)
 void SourceFilter::removeItemAndRow(int index)
 {
     _sources.removeAt(index);
-    removeRow(_layout, DYNAMIC_PRE - index);
+    removeRow(_layout, DYNAMIC_PRE + index);
 }
