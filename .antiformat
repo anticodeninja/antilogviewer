@@ -1,6 +1,6 @@
 variables:
   author: "Artem Yamshanov, me [at] anticode.ninja"
-  years: "2019"
+  years: "2019-2021"
 global:
   rstrip: True
   header: |
