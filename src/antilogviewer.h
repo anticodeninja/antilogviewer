@@ -10,25 +10,21 @@
 #include <QMainWindow>
 #include <QList>
 #include <QMap>
+#include <QBoxLayout>
+#include <QPushButton>
+#include <QTableView>
 
 class ChainElement;
 class TableModel;
 class TableView;
-
-class QLineEdit;
-class QPushButton;
-class QComboBox;
-class QBoxLayout;
-class QGridLayout;
-class QFrame;
 
 class AntiLogViewer : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    AntiLogViewer(QWidget *parent = nullptr);
-    ~AntiLogViewer();
+    explicit AntiLogViewer(QWidget *parent = nullptr);
+    ~AntiLogViewer() override;
 
 private:
     void addChainElement(ChainElement *element);
@@ -40,17 +36,18 @@ private:
     void loadConfiguration();
     void saveConfiguration(bool silent);
 
-    bool loadProfile(QString name);
-    void saveProfile(QString name);
+    bool loadProfile(const QString& profileName);
+    void saveProfile(QString profileName);
     void generateDefaultProfile();
     void deleteProfile();
 
     void configureProfileButton();
 
-    TableModel* _logModel;
+    TableModel *_logModel;
+    QTableView *_logTable;
     QList<ChainElement*> _chain;
-    QBoxLayout* _filtersLayout;
-    QPushButton* _profileButton;
+    QBoxLayout *_filtersLayout;
+    QPushButton *_profileButton;
     QMap<QString, QJsonArray> _profiles;
 
     bool _autoScroll;

@@ -68,6 +68,7 @@ void TextInput::createUI(QGridLayout* layout) {
                     ChainElement::accept(logItem);
 
                 logItem = std::make_shared<LogItem>();
+                logItem->Id = 0;
                 logItem->Type = LogItemType::Log;
                 logItem->Timestamp = datetime.toMSecsSinceEpoch();
                 logItem->Level = _levels[line.mid(sep1 + 1, sep2 - sep1 - 1)];

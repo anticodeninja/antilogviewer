@@ -24,6 +24,7 @@ const QColor DARK_TEXT_COLORS[] = {
     QColor(SOLARIZED_BASE02),
     QColor(SOLARIZED_BASE02),
 };
+
 const QColor DARK_BACK_COLORS[] = {
     QColor(SOLARIZED_BASE03),
     QColor(SOLARIZED_BASE03),
@@ -51,6 +52,7 @@ const QColor LIGHT_TEXT_COLORS[] = {
     QColor(SOLARIZED_BASE02),
     QColor(SOLARIZED_BASE02),
 };
+
 const QColor LIGHT_BACK_COLORS[] = {
     QColor(SOLARIZED_BASE3),
     QColor(SOLARIZED_BASE3),
@@ -77,6 +79,13 @@ const QString ColorNames[] = {
     "Custom 2",
     "Custom 3",
     "Custom 4",
+};
+
+const int COLUMN_WIDTHS[] = {
+    35,
+    100,
+    100,
+    0
 };
 
 #endif // DEFAULT_PALETTES_H

@@ -53,8 +53,8 @@ private:
 
     bool _clear;
     QList<std::shared_ptr<LogItem>> _queue;
-
     QList<std::shared_ptr<LogItem>> _rows;
+
     QVector<QColor> _textColors;
     QVector<QColor> _backColors;
     QString _timeFormat;

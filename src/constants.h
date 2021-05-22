@@ -53,9 +53,11 @@ enum class LogColor
 
 enum class Column
 {
+    Id,
     Timestamp,
     Source,
     Message,
+    End,
 };
 
 const QChar NEWLINE_CHAR = QChar(11152);

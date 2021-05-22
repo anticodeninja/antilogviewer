@@ -12,12 +12,12 @@
 #include <QGridLayout>
 #include <QPushButton>
 
-#include "default_palettes.h"
-#include "helpers.h"
+#include "default_settings.h"
 #include "table_view_config.h"
 
-TableView::TableView(TableModel *tableModel)
-    : _tableModel(tableModel)
+TableView::TableView(QTableView* tableView, TableModel *tableModel)
+    : _tableView(tableView)
+    , _tableModel(tableModel)
 {
     _tableModel->setLinked(true);
 
@@ -106,6 +106,16 @@ void TableView::load(const QJsonObject &data)
         }
     }
 
+    if (data["widths"].isArray()) {
+        auto widths = data["widths"].toArray();
+        for (auto i = 0; i < static_cast<int>(Column::End); ++i) {
+            if (widths.size() > i && widths[i].isDouble())
+                _tableView->setColumnWidth(i, widths[i].toInt());
+            else
+                _tableView->setColumnWidth(i, COLUMN_WIDTHS[i]);
+        }
+    }
+
     setGlobalPalette(_tableModel->textColor(LogColor::Window), _tableModel->backColor(LogColor::Window));
 }
 
@@ -122,6 +132,11 @@ void TableView::save(QJsonObject &data) const
     }
     data["textColors"] = textColors;
     data["backColors"] = backColors;
+
+    QJsonArray widths;
+    for (auto i = 0; i < static_cast<int>(Column::End); ++i)
+        widths.append(_tableView->columnWidth(i));
+    data["widths"] = widths;
 }
 
 void TableView::accept(std::shared_ptr<LogItem> item)
@@ -130,17 +145,20 @@ void TableView::accept(std::shared_ptr<LogItem> item)
     ChainElement::accept(item);
 }
 
-void TableView::setGlobalPalette(QColor text, QColor back)
+void TableView::setDefaultSettings()
+{
+    setGlobalPalette(
+                DARK_TEXT_COLORS[static_cast<int>(LogColor::Window)],
+                DARK_BACK_COLORS[static_cast<int>(LogColor::Window)]);
+
+    for (auto i = 0; i < _tableModel->columnCount(); ++i)
+        _tableView->setColumnWidth(i, COLUMN_WIDTHS[i]);
+}
+
+void TableView::setGlobalPalette(const QColor& text, const QColor& back)
 {
     QPalette palette(back);
     palette.setColor(QPalette::Base, back);
     palette.setColor(QPalette::Highlight, text);
     QApplication::setPalette(palette);
-}
-
-void TableView::setDefaultPalette()
-{
-    setGlobalPalette(
-                DARK_TEXT_COLORS[static_cast<int>(LogColor::Window)],
-                DARK_BACK_COLORS[static_cast<int>(LogColor::Window)]);
 }

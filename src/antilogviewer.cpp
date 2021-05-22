@@ -48,16 +48,16 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
     resize(QDesktopWidget().availableGeometry(this).size());
     setWindowState(Qt::WindowMaximized);
 
-    auto logTable = new QTableView();
-    logTable->setCornerButtonEnabled(false);
-    logTable->setContextMenuPolicy(Qt::CustomContextMenu);
-    logTable->setWordWrap(false);
-    logTable->setSelectionMode(QAbstractItemView::SingleSelection);
-    logTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-    logTable->setItemDelegate(new TableViewColumnStyledItem(_logModel));
-    logTable->setModel(_logModel);
-    logTable->horizontalHeader()->setStretchLastSection(true);
-    logTable->verticalHeader()->setDefaultSectionSize(logTable->verticalHeader()->minimumSectionSize());
+    _logTable = new QTableView();
+    _logTable->setCornerButtonEnabled(false);
+    _logTable->setContextMenuPolicy(Qt::CustomContextMenu);
+    _logTable->setWordWrap(false);
+    _logTable->setSelectionMode(QAbstractItemView::SingleSelection);
+    _logTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    _logTable->setItemDelegate(new TableViewColumnStyledItem(_logModel));
+    _logTable->setModel(_logModel);
+    _logTable->horizontalHeader()->setStretchLastSection(true);
+    _logTable->verticalHeader()->setDefaultSectionSize(_logTable->verticalHeader()->minimumSectionSize());
 
     auto details = new QPlainTextEdit();
     details->setFrameStyle(QFrame::Panel | QFrame::Sunken);
@@ -91,7 +91,7 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
     auxLayout->addWidget(_profileButton, 1, 1);
 
     auto leftSplitter = new QSplitter(Qt::Vertical);
-    leftSplitter->addWidget(logTable);
+    leftSplitter->addWidget(_logTable);
     leftSplitter->addWidget(details);
     leftSplitter->setStretchFactor(0, 6);
     leftSplitter->setStretchFactor(1, 1);
@@ -103,12 +103,12 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
     mainSplitter->setStretchFactor(1, 1);
     setCentralWidget(mainSplitter);
 
-    connect(_logModel, &QAbstractTableModel::rowsInserted, [this, logTable] {
+    connect(_logModel, &QAbstractTableModel::rowsInserted, [this] {
         if (_autoScroll)
-            logTable->scrollToBottom();
+            _logTable->scrollToBottom();
     });
 
-    connect(logTable->selectionModel(), &QItemSelectionModel::currentRowChanged,
+    connect(_logTable->selectionModel(), &QItemSelectionModel::currentRowChanged,
             [details](const QModelIndex &current, const QModelIndex &previous) {
         Q_UNUSED(previous)
         auto messageIndex = current.siblingAtColumn(2);
@@ -123,14 +123,14 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
         details->setPalette(palette);
     });
 
-    connect(logTable->verticalScrollBar(), &QScrollBar::valueChanged, [logTable, ctrAutoScroll](int value) {
-        if (logTable->verticalScrollBar()->maximum() != value)
+    connect(_logTable->verticalScrollBar(), &QScrollBar::valueChanged, [this, ctrAutoScroll](int value) {
+        if (_logTable->verticalScrollBar()->maximum() != value)
             ctrAutoScroll->setChecked(false);
     });
 
-    connect(logTable, &QTableView::customContextMenuRequested,
-            [this, logTable](const QPoint &pos) {
-        auto index = logTable->indexAt(pos);
+    connect(_logTable, &QTableView::customContextMenuRequested,
+            [this](const QPoint &pos) {
+        auto index = _logTable->indexAt(pos);
         if (!index.isValid())
             return;
 
@@ -140,7 +140,7 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
         for (auto i = 0; i < _chain.size(); ++i) {
             _chain[i]->createMenuOnEntry(context, item);
         }
-        context->exec(logTable->viewport()->mapToGlobal(pos));
+        context->exec(_logTable->viewport()->mapToGlobal(pos));
     });
 
     connect(details, &QPlainTextEdit::customContextMenuRequested,
@@ -159,10 +159,10 @@ AntiLogViewer::AntiLogViewer(QWidget *parent)
         context->exec(details->mapToGlobal(pos));
     });
 
-    connect(ctrAutoScroll, &QPushButton::toggled, [this, logTable](bool state) {
+    connect(ctrAutoScroll, &QPushButton::toggled, [this](bool state) {
         _autoScroll = state;
         if (_autoScroll)
-            logTable->scrollToBottom();
+            _logTable->scrollToBottom();
     });
 
     loadConfiguration();
@@ -310,40 +310,40 @@ void AntiLogViewer::saveConfiguration(bool silent)
     saveFile.write(QJsonDocument(configuration).toJson());
 }
 
-bool AntiLogViewer::loadProfile(QString name)
+bool AntiLogViewer::loadProfile(const QString& profileName)
 {
-    if (!_profiles.contains(name))
+    if (!_profiles.contains(profileName))
     {
-        qWarning() << "Could not load profile" << name;
+        qWarning() << "Could not load profile" << profileName;
         return false;
     }
 
     while (!_chain.empty())
         removeChainElement(_chain.last(), true);
 
-    auto chain = _profiles[name];
+    auto chain = _profiles[profileName];
     for (auto i = 0; i < chain.size(); ++i) {
         auto elementSection = chain[i].toObject();
         if (!elementSection["name"].isString())
             continue;
 
-        auto name = elementSection["name"].toString();
+        auto elementName = elementSection["name"].toString();
         ChainElement* element = nullptr;
-        if (name == "Udp Socket") {
+        if (elementName == "Udp Socket") {
             element = new UdpSocket();
-        } else if (name == "Text Input") {
+        } else if (elementName == "Text Input") {
             element = new TextInput();
-        } else if (name == "Level Filter") {
+        } else if (elementName == "Level Filter") {
             element = new LevelFilter();
-        } else if (name == "Source Filter") {
+        } else if (elementName == "Source Filter") {
             element = new SourceFilter();
-        } else if (name == "Keyword Filter") {
+        } else if (elementName == "Keyword Filter") {
             element = new KeywordFilter();
-        } else if (name == "Memory Storage") {
+        } else if (elementName == "Memory Storage") {
             element = new MemoryStorage();
-        } else if (name == "Table View") {
+        } else if (elementName == "Table View") {
             if (!_logModel->linked())
-                element = new TableView(_logModel);
+                element = new TableView(_logTable, _logModel);
         }
 
         if (element == nullptr)
@@ -357,19 +357,19 @@ bool AntiLogViewer::loadProfile(QString name)
     return true;
 }
 
-void AntiLogViewer::saveProfile(QString name)
+void AntiLogViewer::saveProfile(QString profileName)
 {
     bool ok = true;
-    if (name.isEmpty()) {
+    if (profileName.isEmpty()) {
         QStringList profilesNames;
         for (auto i = _profiles.constBegin(); i != _profiles.constEnd(); ++i)
             profilesNames.append(i.key());
 
-        name = QInputDialog::getItem(this, "Save Profile", "Profile Name",
-                                          profilesNames, 0, true, &ok);
+        profileName = QInputDialog::getItem(this, "Save Profile", "Profile Name",
+                                            profilesNames, 0, true, &ok);
     }
 
-    if (!ok || name.isEmpty())
+    if (!ok || profileName.isEmpty())
         return;
 
     QJsonArray chain;
@@ -385,21 +385,25 @@ void AntiLogViewer::saveProfile(QString name)
         chain.append(elementSection);
     }
 
-    _profiles[name] = chain;
+    _profiles[profileName] = chain;
     configureProfileButton();
     saveConfiguration(false);
 }
 
 void AntiLogViewer::generateDefaultProfile()
 {
-    TableView::setDefaultPalette();
+    TableView *tableView;
+
     insertChainElement(new UdpSocket(), 0);
     insertChainElement(new MemoryStorage(), 1);
     insertChainElement(new LevelFilter(), 2);
     insertChainElement(new KeywordFilter(), 3);
     insertChainElement(new SourceFilter(), 4);
-    insertChainElement(new TableView(_logModel), 5);
+    insertChainElement(tableView = new TableView(_logTable, _logModel), 5);
+
+    tableView->setDefaultSettings();
     updateChainSlots();
+
     saveProfile(DEFAULT_PROFILE);
 }
 
@@ -427,7 +431,7 @@ void AntiLogViewer::configureProfileButton()
     auto profileMenu = new QMenu();
 
     for (auto i = _profiles.constBegin(); i != _profiles.constEnd(); ++i) {
-        auto profileName = i.key();
+        const auto& profileName = i.key();
         profileMenu->addAction(profileName, [this, profileName] { loadProfile(profileName); });
     }
     profileMenu->addSeparator();
@@ -453,7 +457,7 @@ void AntiLogViewer::configureProfileButton()
     addMenu->addSection("Outputs");
     addMenu->addAction("Table View", [this] {
         if (!_logModel->linked())
-            addChainElement(new TableView(_logModel));
+            addChainElement(new TableView(_logTable, _logModel));
     });
 
     profileMenu->addMenu(addMenu);

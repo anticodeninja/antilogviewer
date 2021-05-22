@@ -12,6 +12,7 @@
 class LogItem
 {
 public:
+    quint64 Id;
     LogItemType Type;
     LogLevel Level;
     LogColor Color;

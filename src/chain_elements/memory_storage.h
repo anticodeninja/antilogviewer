@@ -32,6 +32,7 @@ private:
     void sendClear();
 
     QList<std::shared_ptr<LogItem>> _rows;
+    quint64 _counter;
 };
 
 #endif // MEMORY_STORAGE_H

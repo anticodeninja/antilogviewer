@@ -44,6 +44,7 @@ UdpSocket::UdpSocket()
 
             while (xml.readNextStartElement()) {
                 if (xml.name() == "event") {
+                    logItem->Id = 0;
                     logItem->Source = xml.attributes().value("logger").toString();
                     logItem->Timestamp = xml.attributes().value("timestamp").toLongLong();
                     logItem->Level = _levels[xml.attributes().value("level").toString()];

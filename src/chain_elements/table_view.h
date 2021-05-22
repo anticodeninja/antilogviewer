@@ -6,6 +6,7 @@
 #ifndef TERMINATOR_H
 #define TERMINATOR_H
 
+#include <QTableView>
 #include "chain_elements/chain_element.h"
 
 class TableModel;
@@ -13,24 +14,25 @@ class TableModel;
 class TableView : public ChainElement
 {
 public:
-    TableView(TableModel* tableModel);
+    TableView(QTableView* tableView, TableModel* tableModel);
 
-    virtual ~TableView();
+    ~TableView() override;
 
-    virtual const QString name() const { return "Table View"; }
-    virtual ChainElementType type() const { return ChainElementType::Sink; }
+    const QString name() const override { return "Table View"; }
+    ChainElementType type() const override { return ChainElementType::Sink; }
 
-    virtual void createUI(QGridLayout *layout);
+    void createUI(QGridLayout *layout) override;
 
-    virtual void load(const QJsonObject& data);
-    virtual void save(QJsonObject& data) const;
+    void load(const QJsonObject& data) override;
+    void save(QJsonObject& data) const override;
 
-    virtual void accept(std::shared_ptr<LogItem> item);
+    void accept(std::shared_ptr<LogItem> item) override;
 
-    static void setGlobalPalette(QColor text, QColor back);
-    static void setDefaultPalette();
+    void setDefaultSettings();
+    static void setGlobalPalette(const QColor& text, const QColor& back);
 
 private:
+    QTableView* _tableView;
     TableModel* _tableModel;
 };
 

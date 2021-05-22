@@ -32,13 +32,15 @@ int TableModel::rowCount(const QModelIndex &parent) const
 int TableModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
-    return 3;
+    return static_cast<int>(Column::End);
 }
 
 QVariant TableModel::data(const QModelIndex &index, int role) const
 {
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
+        case static_cast<int>(Column::Id):
+            return _rows[index.row()]->Id;
         case static_cast<int>(Column::Timestamp):
             return QDateTime::fromMSecsSinceEpoch(_rows[index.row()]->Timestamp).toString(_timeFormat);
         case static_cast<int>(Column::Source):
@@ -60,6 +62,8 @@ QVariant TableModel::headerData(int section, Qt::Orientation orientation, int ro
     if (role == Qt::DisplayRole && orientation == Qt::Horizontal)
     {
         switch (section) {
+        case static_cast<int>(Column::Id):
+            return QString("#");
         case static_cast<int>(Column::Timestamp):
             return QString("Timestamp");
         case static_cast<int>(Column::Source):

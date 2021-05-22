@@ -11,7 +11,7 @@
 #include <QLabel>
 #include <QPushButton>
 
-#include "default_palettes.h"
+#include "default_settings.h"
 
 void setButtonColor(QPushButton* button, QColor color) {
     QPalette palette = button->palette();
