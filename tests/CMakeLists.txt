@@ -5,7 +5,8 @@ find_package(Qt${QT_VERSION} COMPONENTS ${REQUIRED_LIBS} REQUIRED)
 file(GLOB SOURCE_FILES
         "*.cpp"
         "../src/*.cpp"
-        "../src/chain_elements/*.cpp")
+        "../src/chain_elements/*.cpp"
+        "../src/dialogs/*.cpp")
 list(FILTER SOURCE_FILES EXCLUDE REGEX ../src/main.cpp)
 
 add_executable(${PROJECT_NAME}_tests ${SOURCE_FILES})

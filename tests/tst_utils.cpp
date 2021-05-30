@@ -20,6 +20,11 @@ private slots:
     void sourceFilterEmptyTest();
     void sourceFilterPassTest();
     void sourceFilterColorTest();
+
+    void parseRangeIdealTest();
+    void parseRangeMergeTest();
+    void parseRangeEmptyTest();
+    void parseRangePartialTest();
 };
 
 void Utils::splitOnChunksTest_data() {
@@ -146,6 +151,34 @@ void Utils::sourceFilterColorTest()
     QCOMPARE(filter.sources(), QList<QString>({"Parent.Child 2"}));
     QCOMPARE(sink.last(), logItem2);
     QCOMPARE(sink.last()->Color, LogColor::Custom1);
+}
+
+void Utils::parseRangeIdealTest() {
+    auto ranges = std::move(parseRange("1, 3,100-123"));
+    QCOMPARE(ranges.size(), 3);
+    QCOMPARE(ranges[0], std::make_tuple(1, 1));
+    QCOMPARE(ranges[1], std::make_tuple(3, 3));
+    QCOMPARE(ranges[2], std::make_tuple(100, 123));
+}
+
+void Utils::parseRangeMergeTest() {
+    auto ranges = std::move(parseRange("5-7,1,2,99-300,50-100"));
+    QCOMPARE(ranges.size(), 3);
+    QCOMPARE(ranges[0], std::make_tuple(1, 2));
+    QCOMPARE(ranges[1], std::make_tuple(5, 7));
+    QCOMPARE(ranges[2], std::make_tuple(50, 300));
+}
+
+void Utils::parseRangeEmptyTest() {
+    auto ranges = std::move(parseRange(""));
+    QCOMPARE(ranges.size(), 0);
+}
+
+void Utils::parseRangePartialTest() {
+    auto ranges = std::move(parseRange("-100,150-"));
+    QCOMPARE(ranges.size(), 2);
+    QCOMPARE(ranges[0], std::make_tuple(1, 100));
+    QCOMPARE(ranges[1], std::make_tuple(150, std::numeric_limits<quint64>::max()));
 }
 
 QTEST_APPLESS_MAIN(Utils)

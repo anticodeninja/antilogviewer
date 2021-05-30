@@ -6,6 +6,9 @@
 #ifndef HELPERS_H
 #define HELPERS_H
 
+#include <vector>
+#include <QString>
+
 class QString;
 class QWidget;
 class QGridLayout;
@@ -16,5 +19,7 @@ void removeRow(QGridLayout* layout, int offset);
 
 // Helper for splitting source string in chunks, some kind of a "very simple iterator"
 bool splitOnChunks(const QString& source, int& index, QString* part, QString* chunk);
+
+std::vector<std::tuple<quint64,quint64>> parseRange(const QString& range);
 
 #endif // HELPERS_H

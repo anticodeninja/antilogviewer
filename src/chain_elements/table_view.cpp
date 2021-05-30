@@ -11,9 +11,12 @@
 #include <QJsonObject>
 #include <QGridLayout>
 #include <QPushButton>
+#include <QMessageBox>
 
 #include "default_settings.h"
-#include "table_view_config.h"
+#include "helpers.h"
+#include "dialogs/table_view_config.h"
+#include "dialogs/export_dialog.h"
 
 TableView::TableView(QTableView* tableView, TableModel *tableModel)
     : _tableView(tableView)
@@ -39,7 +42,7 @@ TableView::~TableView()
 
 void TableView::createUI(QGridLayout *layout) {
     auto ctrConfigure = new QPushButton("Configure");
-    ctrConfigure->connect(ctrConfigure, &QPushButton::clicked, [this, ctrConfigure] {
+    QPushButton::connect(ctrConfigure, &QPushButton::clicked, [this, ctrConfigure] {
         auto config = new TableViewConfig(ctrConfigure);
 
         config->setTimeFormat(_tableModel->timeFormat());
@@ -64,17 +67,64 @@ void TableView::createUI(QGridLayout *layout) {
             _tableModel->setBackColor(color, config->backColor(color));
         }
         setGlobalPalette(_tableModel->textColor(LogColor::Window), _tableModel->backColor(LogColor::Window));
+        delete config;
+    });
+
+    auto ctrExport = new QPushButton("Export");
+    QPushButton::connect(ctrExport, &QPushButton::clicked, [this, ctrExport] {
+        auto exportDialog = new ExportDialog(ctrExport);
+
+        if (exportDialog->exec() != QDialog::Accepted)
+            return;
+
+        QFile saveFile(exportDialog->selectedFiles()[0]);
+        if (!saveFile.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            QMessageBox::warning(ctrExport, "antilogviewer", "Cannot open file");
+            return;
+        }
+
+        auto ranges = std::move(parseRange(exportDialog->range()));
+        auto rangeIndex = 0;
+
+        QTextStream out(&saveFile);
+
+        for (auto i = 0; i < _tableModel->rowCount(); ++i)
+        {
+            if (!ranges.empty())
+            {
+                auto id = i + 1;
+
+                while (rangeIndex < ranges.size() && id > std::get<1>(ranges[rangeIndex]))
+                    rangeIndex += 1;
+
+                if (rangeIndex == ranges.size())
+                    break;
+
+                if (id < std::get<0>(ranges[rangeIndex]))
+                    continue;
+            }
+
+            auto row = _tableModel->get(i);
+            out << QDateTime::fromMSecsSinceEpoch(row->Timestamp).toString("yyyy-MM-dd HH:mm:ss.zzz") << "|"
+                << ColorNames[static_cast<int>(row->Level)].toUpper() << "|"
+                << row->Source << "|"
+                << row->Message << "\n";
+        }
+
+        delete exportDialog;
     });
 
     auto ctrClear = new QPushButton("Clear");
-    ctrClear->connect(ctrClear, &QPushButton::clicked, [this] {
+    QPushButton::connect(ctrClear, &QPushButton::clicked, [this] {
         auto logItem = std::make_shared<LogItem>();
         logItem->Type = LogItemType::Clear;
         _tableModel->add(logItem);
     });
 
     layout->addWidget(ctrConfigure, 2, 0, 1, 2);
-    layout->addWidget(ctrClear, 3, 0, 1, 2);
+    layout->addWidget(ctrExport, 3, 0, 1, 2);
+    layout->addWidget(ctrClear, 4, 0, 1, 2);
 }
 
 void TableView::load(const QJsonObject &data)

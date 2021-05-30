@@ -66,3 +66,51 @@ bool splitOnChunks(const QString& source, int& index, QString* part, QString* ch
 
     return true;
 }
+
+std::vector<std::tuple<quint64, quint64>> parseRange(const QString &range) {
+    std::vector<std::tuple<quint64,quint64>> ranges;;
+
+    for (auto& chunk: range.split(",")) {
+        auto delimiter = chunk.indexOf('-');
+
+        if (delimiter == -1)
+        {
+            auto value = chunk.toULong();
+            if (value == 0)
+                return ranges;
+            ranges.emplace_back(value, value);
+        }
+        else
+        {
+            auto start = chunk.leftRef(delimiter).trimmed().size() != 0
+                    ? chunk.leftRef(delimiter).toULong()
+                    : 1;
+
+            auto end = chunk.rightRef(chunk.length() - delimiter - 1).trimmed().size() != 0
+                    ? chunk.rightRef(chunk.length() - delimiter - 1).toULong()
+                    : std::numeric_limits<quint64>::max();
+
+            if (start == 0 || end == 0)
+                return ranges;
+
+            ranges.emplace_back(start, end);
+        }
+    }
+
+    std::sort(ranges.begin(), ranges.end());
+
+    auto i = 0;
+    while (i < ranges.size() - 1)
+    {
+        if (std::get<1>(ranges[i]) + 1 >= std::get<0>(ranges[i + 1]))
+        {
+            ranges[i] = std::make_tuple(std::get<0>(ranges[i]), std::get<1>(ranges[i+1]));
+            ranges.erase(ranges.begin() + (i + 1));
+            continue;
+        }
+
+        i += 1;
+    }
+
+    return ranges;
+}

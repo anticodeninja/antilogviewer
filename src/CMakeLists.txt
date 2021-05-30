@@ -1,6 +1,7 @@
 file(GLOB SOURCE_FILES
         "*.cpp"
-        "chain_elements/*.cpp")
+        "chain_elements/*.cpp"
+        "dialogs/*.cpp")
 
 set(RESOURCE_FILES resources.qrc)
 if (WIN32)
