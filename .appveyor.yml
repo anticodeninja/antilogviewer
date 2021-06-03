@@ -22,7 +22,7 @@ build_script:
   - mingw32-make
 
 after_build:
-  - rm -r {antilogviewer_autogen,CMakeFiles,cmake_install.cmake,CMakeCache.txt,Makefile} || true
+  - rm -r {antilogviewer_autogen,CMakeFiles,cmake_install.cmake,CMakeCache.txt,Makefile,qrc_resources.cpp,resources.qrc.depends} || true
 
 artifacts:
   - path: build/src

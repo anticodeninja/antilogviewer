@@ -3,7 +3,7 @@ file(GLOB SOURCE_FILES
         "chain_elements/*.cpp"
         "dialogs/*.cpp")
 
-set(RESOURCE_FILES resources.qrc)
+qt_add_resources(RESOURCE_FILES resources.qrc)
 if (WIN32)
     list(APPEND RESOURCE_FILES resources.rc)
 endif()

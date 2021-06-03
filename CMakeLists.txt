@@ -28,6 +28,13 @@ if (WIN32)
                 COMMAND ${CMAKE_COMMAND} -E copy
                 "${QT_INSTALL_PATH}/plugins/platforms/qwindows${DEBUG_SUFFIX}.dll"
                 "$<TARGET_FILE_DIR:${target}>/plugins/platforms/")
+        add_custom_command(TARGET ${target} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E make_directory
+                "$<TARGET_FILE_DIR:${target}>/plugins/imageformats/")
+        add_custom_command(TARGET ${target} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy
+                "${QT_INSTALL_PATH}/plugins/imageformats/qico${DEBUG_SUFFIX}.dll"
+                "$<TARGET_FILE_DIR:${target}>/plugins/imageformats/")
 
         foreach (QT_LIB ${REQUIRED_LIBS})
             add_custom_command(TARGET ${target} POST_BUILD
